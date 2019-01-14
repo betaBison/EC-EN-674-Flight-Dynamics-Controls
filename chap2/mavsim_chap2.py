@@ -1,16 +1,16 @@
 """
-mavSimPy 
+mavSimPy
     - Chapter 2 assignment for Beard & McLain, PUP, 2012
-    - Update history:  
+    - Update history:
         1/10/2019 - RWB
 """
 import sys
 sys.path.append('..')
 
 # import viewers and video writer
-#from chap2.spacecraft_viewer import spacecraft_viewer
-from chap2.mav_viewer import mav_viewer
-from chap2.video_writer import video_writer
+from chap2.spacecraft_viewer import spacecraft_viewer
+#from chap2.mav_viewer import mav_viewer
+#from chap2.video_writer import video_writer
 
 # import parameters
 import parameters.simulation_parameters as SIM
@@ -22,8 +22,8 @@ state = msg_state()  # instantiate state message
 
 # initialize viewers and video
 VIDEO = False  # True==write video, False==don't write video
-#mav_view = spacecraft_viewer()
-mav_view = mav_viewer()
+mav_view = spacecraft_viewer()
+#mav_view = mav_viewer()
 if VIDEO == True:
     video = video_writer(video_name="chap2_video.avi",
                          bounding_box=(0, 0, 1000, 1000),
@@ -58,6 +58,3 @@ while sim_time < SIM.end_time:
 
 print("Press Ctrl-Q to exit...")
 if VIDEO == True: video.close()
-
-
-
