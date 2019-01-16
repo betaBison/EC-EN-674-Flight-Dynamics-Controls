@@ -60,7 +60,7 @@ class mav_viewer():
             # initialize drawing of triangular mesh.
             self.body = gl.GLMeshItem(vertexes=mesh,  # defines the triangular mesh (Nx3x3)
                                       vertexColors=self.meshColors, # defines mesh colors (Nx1)
-                                      drawEdges=False,  # draw edges between mesh elements
+                                      drawEdges=True,  # draw edges between mesh elements
                                       smooth=False,  # speeds up rendering
                                       computeNormals=False)  # speeds up rendering
             self.window.addItem(self.body)  # add body to plot
@@ -95,12 +95,16 @@ class mav_viewer():
             Define the points on the aircraft following diagram in Figure C.3
         """
         #points are in NED coordinates
-        points = np.genfromtxt ('vert2.csv', delimiter=",")
+        points = np.genfromtxt ('polyvert3.csv', delimiter=",")
         #print(points.shape[0])
         points = points.T
+        R = np.array([[0, -1, 0], [1, 0, 0], [0, 0, 1]])
+        points = R @ points
+        R = np.array([[0, 0, -1], [0, 1, 0], [1, 0, 0]])
+        points = R @ points
 
         # scale points for better rendering
-        scale = 10
+        scale = 0.1
         points = scale * points
 
         #   define the colors for each face of triangular mesh
@@ -108,20 +112,14 @@ class mav_viewer():
         green = np.array([0., 1., 0., 1])
         blue = np.array([0., 0., 1., 1])
         yellow = np.array([1., 1., 0., 1])
-        meshColors = np.empty((361921, 3, 4), dtype=np.float32)
-        meshColors[0] = yellow  # front
-        meshColors[1] = yellow  # front
-        meshColors[2] = blue  # back
-        meshColors[3] = blue  # back
-        meshColors[4] = blue  # right
-        meshColors[5] = blue  # right
-        meshColors[6] = blue  # left
-        meshColors[7] = blue  # left
-        meshColors[8] = blue  # top
-        meshColors[9] = blue  # top
-        meshColors[10] = green  # bottom
-        meshColors[11] = green  # bottom
-        meshColors[12:] = blue
+        orange = np.array([1.0, 0.647, 0., 1])
+        meshColors = np.empty((915, 3, 4), dtype=np.float32)
+        meshColors[0:100] = yellow
+        meshColors[100:200] = red
+        meshColors[200:300] = green
+        meshColors[300:350] = blue
+        meshColors[350:] = orange
+
         return points, meshColors
 
     def _points_to_mesh(self, points):
@@ -131,26 +129,8 @@ class mav_viewer():
           (a rectangle requires two triangular mesh faces)
         """
         points=points.T
-        mesh2 = np.genfromtxt ('face2.csv', delimiter=",")
-        #print(points)
-        #print("mesh",mesh2)
+        mesh2 = np.genfromtxt ('polyface3.csv', delimiter=",")
         mesh3 = np.array(list(map(lambda x: list(map(lambda y: points[int(y)], x)), mesh2)))
-        #print(mesh3)
-        '''
-        mesh = np.array([[points[0], points[1], points[5]],  # front
-                         [points[0], points[4], points[5]],  # front
-                         [points[3], points[2], points[6]],  # back
-                         [points[3], points[7], points[6]],  # back
-                         [points[3], points[0], points[4]],  # right
-                         [points[3], points[7], points[4]],  # right
-                         [points[2], points[1], points[5]],  # left
-                         [points[2], points[6], points[5]],  # left
-                         [points[7], points[4], points[5]],  # top
-                         [points[7], points[6], points[5]],  # top
-                         [points[11], points[8], points[9]],  # bottom
-                         [points[11], points[10], points[9]],  # bottom
-                         ])
-        '''
         return mesh3
 
     def _Euler2Rotation(self, phi, theta, psi):

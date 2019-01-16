@@ -1,6 +1,5 @@
 # Using PyMesh docker to get the vertices and faces from a .obj file
 
-
 TERMINAL 1:
 $ sudo docker run -it pymesh/pymesh /bin/bash
 
@@ -14,6 +13,10 @@ $ python3
 >> import pymesh
 >> import csv
 >> mymesh = pymesh.load_mesh("model.obj")
+>>
+>> # optional step of mymesh,info = pymesh.collapse_short_edges(mymesh,tol)
+>> # to decrease total faces
+>>
 >> with open('/root/vertices.csv', 'w', newline='') as f:
 ...     writer = csv.writer(f)
 ...     writer.writerows(mymesh.vertices)
@@ -22,6 +25,8 @@ $ python3
 ...     writer = csv.writer(f)
 ...     writer.writerows(mymesh.faces)
 ...
+
+
 
 TERMINAL 2:
 sudo docker cp <docker ID:>:/root/vertices.csv ./

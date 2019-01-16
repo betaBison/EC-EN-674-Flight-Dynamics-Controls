@@ -43,11 +43,11 @@ while sim_time < SIM.end_time:
     elif sim_time < 3*SIM.end_time/6:
         state.h += 10*SIM.ts_simulation
     elif sim_time < 4*SIM.end_time/6:
-        state.phi += 0.1*SIM.ts_simulation
+        state.psi += 0.1*SIM.ts_simulation
     elif sim_time < 5*SIM.end_time/6:
         state.theta += 0.1*SIM.ts_simulation
     else:
-        state.psi += 0.1*SIM.ts_simulation
+        state.phi += 0.1*SIM.ts_simulation
 
     #-------update viewer and video-------------
     mav_view.update(state)
