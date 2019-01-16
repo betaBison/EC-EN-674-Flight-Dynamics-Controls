@@ -35,6 +35,8 @@ sim_time = SIM.start_time
 # main simulation loop
 T = 2.5
 while sim_time < SIM.end_time:
+    #pass
+
     #-------vary states to check viewer-------------
     if sim_time < SIM.end_time/6:
         state.pn += 10*SIM.ts_simulation
@@ -48,6 +50,7 @@ while sim_time < SIM.end_time:
         state.theta += 0.1*SIM.ts_simulation
     else:
         state.phi += 0.1*SIM.ts_simulation
+
 
     #-------update viewer and video-------------
     mav_view.update(state)

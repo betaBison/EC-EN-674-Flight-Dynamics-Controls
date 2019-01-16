@@ -18,7 +18,7 @@ class mav_viewer():
         self.window.setWindowTitle('Spacecraft Viewer')
         self.window.setGeometry(0, 0, 1000, 1000)  # args: upper_left_x, upper_right_y, width, height
         grid = gl.GLGridItem() # make a grid to represent the ground
-        grid.scale(20, 20, 20) # set the size of the grid (distance between each line)
+        grid.scale(20, 20, 5) # set the size of the grid (distance between each line)
         self.window.addItem(grid) # add grid to viewer
         self.window.setCameraPosition(distance=200) # distance from center of plot to camera
         self.window.setBackgroundColor('k')  # set background color to black
@@ -50,8 +50,8 @@ class mav_viewer():
         rotated_points = self._rotate_points(self.points, R)
         translated_points = self._translate_points(rotated_points, spacecraft_position)
         # convert North-East Down to East-North-Up for rendering
-        R = np.array([[0, 1, 0], [1, 0, 0], [0, 0, -1]])
-        translated_points = R @ translated_points
+        R_disp = np.array([[0, 1, 0], [1, 0, 0], [0, 0, -1]])
+        translated_points = R_disp @ translated_points
         # convert points to triangular mesh defined as array of three 3D points (Nx3x3)
         mesh = self._points_to_mesh(translated_points)
 
@@ -64,6 +64,20 @@ class mav_viewer():
                                       smooth=False,  # speeds up rendering
                                       computeNormals=False)  # speeds up rendering
             self.window.addItem(self.body)  # add body to plot
+            # add all three axis
+            axis_length = 220.0
+            naxis_pts = np.array([[0.0,0.0,0.0],
+                            [0.0,axis_length,0.0]])
+            naxis = gl.GLLinePlotItem(pos=naxis_pts,color=pg.glColor('r'),width=3.0)
+            self.window.addItem(naxis)
+            eaxis_pts = np.array([[0.0,0.0,0.0],
+                            [axis_length,0.0,0.0]])
+            eaxis = gl.GLLinePlotItem(pos=eaxis_pts,color=pg.glColor('g'),width=3.0)
+            self.window.addItem(eaxis)
+            daxis_pts = np.array([[0.0,0.0,0.0],
+                            [0.0,0.0,-axis_length]])
+            daxis = gl.GLLinePlotItem(pos=daxis_pts,color=pg.glColor('b'),width=3.0)
+            self.window.addItem(daxis)
             self.plot_initialized = True
 
         # else update drawing on all other calls to update()
@@ -103,9 +117,13 @@ class mav_viewer():
         R = np.array([[0, 0, -1], [0, 1, 0], [1, 0, 0]])
         points = R @ points
 
+
         # scale points for better rendering
         scale = 0.1
         points = scale * points
+        points[0,:] -= scale*180
+        points[2,:] -= scale*40
+
 
         #   define the colors for each face of triangular mesh
         red = np.array([1., 0., 0., 1])
@@ -113,12 +131,21 @@ class mav_viewer():
         blue = np.array([0., 0., 1., 1])
         yellow = np.array([1., 1., 0., 1])
         orange = np.array([1.0, 0.647, 0., 1])
-        meshColors = np.empty((915, 3, 4), dtype=np.float32)
-        meshColors[0:100] = yellow
-        meshColors[100:200] = red
-        meshColors[200:300] = green
-        meshColors[300:350] = blue
-        meshColors[350:] = orange
+        white_gray = np.array([0.9, 0.9, 0.9, 1])
+        dark_gray = np.array([0.3, 0.3, 0.3, 1])
+        meshColors = np.empty((587, 3, 4), dtype=np.float32)
+        meshColors[0:36] = white_gray # middle of wheels
+        meshColors[36:79] = green # parts of right fuselage and wing
+        meshColors[79:127] = red # parts of left fuselage and wing
+        meshColors[127:200] = dark_gray
+        meshColors[200:313] = dark_gray
+        meshColors[313:356] = white_gray # propeller
+        meshColors[356:378] = white_gray # flanges near tip
+        meshColors[378:470] = green
+        meshColors[470:560] = red
+        meshColors[560:563] = green # underbody patch
+        meshColors[563:575] = white_gray # windows
+        meshColors[575:] = white_gray # inside chamber near front
 
         return points, meshColors
 
