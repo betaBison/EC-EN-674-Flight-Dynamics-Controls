@@ -9,7 +9,7 @@ sys.path.append('..')
 
 # import viewers and video writer
 from chap2.spacecraft_viewer import spacecraft_viewer
-#from chap2.mav_viewer import mav_viewer
+from chap2.mav_viewer import mav_viewer
 #from chap2.video_writer import video_writer
 
 # import parameters
@@ -22,8 +22,8 @@ state = msg_state()  # instantiate state message
 
 # initialize viewers and video
 VIDEO = False  # True==write video, False==don't write video
-mav_view = spacecraft_viewer()
-#mav_view = mav_viewer()
+#mav_view = spacecraft_viewer()
+mav_view = mav_viewer()
 if VIDEO == True:
     video = video_writer(video_name="chap2_video.avi",
                          bounding_box=(0, 0, 1000, 1000),

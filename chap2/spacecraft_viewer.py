@@ -1,11 +1,11 @@
 """
 example of drawing a box-like spacecraft in python
     - Beard & McLain, PUP, 2012
-    - Update history:  
+    - Update history:
         1/8/2019 - RWB
 """
 import numpy as np
-
+from stl import mesh as mesh_mod
 import pyqtgraph as pg
 import pyqtgraph.opengl as gl
 import pyqtgraph.Vector as Vector
@@ -177,4 +177,3 @@ class spacecraft_viewer():
                           [0, 0, 1]])
         R = R_roll @ R_pitch @ R_yaw  # inertial to body (Equation 2.4 in book)
         return R.T  # transpose to return body to inertial
-
