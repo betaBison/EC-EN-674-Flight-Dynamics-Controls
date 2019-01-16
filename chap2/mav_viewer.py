@@ -95,7 +95,7 @@ class mav_viewer():
             Define the points on the aircraft following diagram in Figure C.3
         """
         #points are in NED coordinates
-        points = np.genfromtxt ('piper_vertices.csv', delimiter=",")
+        points = np.genfromtxt ('vert2.csv', delimiter=",")
         #print(points.shape[0])
         points = points.T
 
@@ -131,7 +131,7 @@ class mav_viewer():
           (a rectangle requires two triangular mesh faces)
         """
         points=points.T
-        mesh2 = np.genfromtxt ('piper_faces.csv', delimiter=",")
+        mesh2 = np.genfromtxt ('face2.csv', delimiter=",")
         #print(points)
         #print("mesh",mesh2)
         mesh3 = np.array(list(map(lambda x: list(map(lambda y: points[int(y)], x)), mesh2)))

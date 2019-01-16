@@ -5,7 +5,7 @@ TERMINAL 1:
 $ sudo docker run -it pymesh/pymesh /bin/bash
 
 TERMINAL 2:
-docker ps
+sudo docker ps
 (copy the docker ID)
 sudo docker cp <source path/model.obj> <docker ID>:/root
 
