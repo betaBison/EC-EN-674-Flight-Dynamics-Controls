@@ -13,10 +13,12 @@ import pyqtgraph.Vector as Vector
 class mav_viewer():
     def __init__(self):
         # initialize Qt gui application and window
+        pg.setConfigOptions(antialias=True)
         self.app = pg.QtGui.QApplication([])  # initialize QT
         self.window = gl.GLViewWidget()  # initialize the view object
-        self.window.setWindowTitle('Spacecraft Viewer')
-        self.window.setGeometry(0, 0, 1000, 1000)  # args: upper_left_x, upper_right_y, width, height
+        self.window.setWindowTitle('EC EN 674: Flight Dynamics & Controls Design Project')
+        self.window.showMaximized()
+        #self.window.setGeometry(0, 0, 1000, 1000)  # args: upper_left_x, upper_right_y, width, height
         grid = gl.GLGridItem() # make a grid to represent the ground
         grid.scale(20, 20, 5) # set the size of the grid (distance between each line)
         self.window.addItem(grid) # add grid to viewer
