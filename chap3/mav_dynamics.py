@@ -90,12 +90,12 @@ class mav_dynamics:
         n = forces_moments.item(5)
 
         # position kinematics
-        pn_dot = 
-        pe_dot =
-        pd_dot =
+        pn_dot = (e1**2+e0**2-e2**2-e3**2)*u + 2*(e1*e2-e3*e0)*v + 2*(e1*e3+e2*e0)*w
+        pe_dot = 2*(e1*e2+e3*e0)*u + (e2**2+e0**2-e1**2-e3**2)*v + 2*(e2*e3-e1*e0)*w
+        pd_dot = 2*(e1*e3-e2*e0)*u + 2*(e2*e3+e1*e0)*v + (e3**2+e0**2-e1**2-e2**2)*w
 
         # position dynamics
-        u_dot =
+        u_dot = r*v-q*w+fx/m
         v_dot =
         w_dot =
 
