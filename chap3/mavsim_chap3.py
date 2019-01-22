@@ -1,7 +1,7 @@
 """
-mavSimPy 
+mavSimPy
     - Chapter 3 assignment for Beard & McLain, PUP, 2012
-    - Update history:  
+    - Update history:
         12/18/2018 - RWB
         1/14/2019 - RWB
 """
@@ -11,7 +11,7 @@ import numpy as np
 import parameters.simulation_parameters as SIM
 
 from chap2.mav_viewer import mav_viewer
-from chap2.video_writer import video_writer
+#from chap2.video_writer import video_writer
 from chap3.data_viewer import data_viewer
 from chap3.mav_dynamics import mav_dynamics
 
@@ -60,7 +60,3 @@ while sim_time < SIM.end_time:
 
 if VIDEO == True:
     video.close()
-
-
-
-
