@@ -62,7 +62,7 @@ class mav_viewer():
             # initialize drawing of triangular mesh.
             self.body = gl.GLMeshItem(vertexes=mesh,  # defines the triangular mesh (Nx3x3)
                                       vertexColors=self.meshColors, # defines mesh colors (Nx1)
-                                      drawEdges=True,  # draw edges between mesh elements
+                                      drawEdges=False,  # draw edges between mesh elements
                                       smooth=False,  # speeds up rendering
                                       computeNormals=False)  # speeds up rendering
             self.window.addItem(self.body)  # add body to plot
