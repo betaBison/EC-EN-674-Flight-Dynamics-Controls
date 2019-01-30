@@ -1,7 +1,7 @@
 """
 mavsimPy
     - Chapter 4 assignment for Beard & McLain, PUP, 2012
-    - Update history:  
+    - Update history:
         12/27/2018 - RWB
         1/17/2019 - RWB
 """
@@ -60,7 +60,3 @@ while sim_time < SIM.end_time:
 
 if VIDEO == True:
     video.close()
-
-
-
-

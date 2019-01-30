@@ -2,11 +2,12 @@
 mav_dynamics
     - this file implements the dynamic equations of motion for MAV
     - use unit quaternion for the attitude state
-    
+
 """
 import sys
 sys.path.append('..')
 import numpy as np
+from math import sqrt,cos,sin,pi,atan2,asin
 
 # load message types
 from message_types.msg_state import msg_state
@@ -91,11 +92,14 @@ class mav_dynamics:
 
     def _update_velocity_data(self, wind=np.zeros((6,1))):
         # compute airspeed
-        self._Va =
+        ur = self._state[3] - wind[0]
+        vr = self._state[4] - wind[1]
+        wr = self._state[5] - wind[2]
+        self._Va = sqrt(ur**2+vr**2+wr**2)
         # compute angle of attack
-        self._alpha =
+        self._alpha = atan2(wr,ur)
         # compute sideslip angle
-        self._beta =
+        self._beta =asin(vr/sqrt(ur**2+vr**2+wr**2))
 
     def _forces_moments(self, delta):
         """
@@ -103,10 +107,28 @@ class mav_dynamics:
         :param delta: np.matrix(delta_a, delta_e, delta_r, delta_t)
         :return: Forces and Moments on the UAV np.matrix(Fx, Fy, Fz, Ml, Mn, Mm)
         """
+        self.msg_true_state.theta
+        phi, theta, psi = Quaternion2Euler(self._state[6:10])
+        k1 = np.matrix([[-MAV.mass*MAV.gravity*sin(theta)],
+                        [MAV.mass*MAV.gravity*cos(theta)*sin(phi)],
+                        [MAV.mass*MAV.gravity*sin(theta)*cos(phi)]])
+        Cx = self.CD ...
+
+
+
+
+        fx =
+        fy = 
+        fz =
+        Mx =
         self._forces[0] = fx
         self._forces[1] = fy
         self._forces[2] = fz
         return np.array([[fx, fy, fz, Mx, My, Mz]]).T
+
+    def CD(self,alpha):
+        result = MAV.C_D_p + ((MAV.C_L_0+alpha*C_L_alpha)**2)/(pi*MAV.e*MAV.AR)
+        return result
 
     def _update_msg_true_state(self):
         # update the class structure for the true state:
