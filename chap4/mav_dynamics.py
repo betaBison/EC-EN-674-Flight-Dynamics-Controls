@@ -279,9 +279,10 @@ class mav_dynamics:
         # update the class structure for the true state:
         #   [pn, pe, h, Va, alpha, beta, phi, theta, chi, p, q, r, Vg, wn, we, psi, gyro_bx, gyro_by, gyro_bz]
 
-        Vg = self._Va + self._wind
-        gamma = atan2(Vg[2],sqrt(Vg[0]**2 + Vg[1]**2))
-        chi = atan2(Vg[1],Vg[0])
+
+        Vg = sqrt(self._state[3]**2+self._state[4]**2+self._state[5]**2)
+        gamma = atan2(self._state[5],sqrt(self._state[3]**2 + self._state[4]**2))
+        chi = atan2(self._state[4],self._state[3])
 
         phi, theta, psi = Quaternion2Euler(self._state[6:10])
         self.msg_true_state.pn = self._state.item(0)

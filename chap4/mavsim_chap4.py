@@ -34,12 +34,89 @@ sim_time = SIM.start_time
 
 # main simulation loop
 print("Press Command-Q to exit...")
+switch = 0
 while sim_time < SIM.end_time:
-    #-------set control surfaces-------------
-    delta_e = -0.2
-    delta_t = 0.5
-    delta_a = 0.0
-    delta_r = 0.005
+    if switch == 0:
+        if sim_time < SIM.end_time/8.:
+            #-------set control surfaces-------------
+            delta_a = 0.023 #0.018 # about trim
+            delta_e = 0.0 #0.9#-0.2
+            delta_r = 0.00 #0.005
+            delta_t = 0.5
+        else:
+            mav.__init__(SIM.ts_simulation)
+            switch += 1
+    elif switch == 1:
+        if sim_time < 2*SIM.end_time/8.:
+            #-------set control surfaces-------------
+            delta_a = 0.013 #0.018 # about trim
+            delta_e = 0.0 #0.9#-0.2
+            delta_r = 0.00 #0.005
+            delta_t = 0.5
+        else:
+            mav.__init__(SIM.ts_simulation)
+            switch += 1
+    elif switch == 2:
+        if sim_time <3*SIM.end_time/8.:
+            #-------set control surfaces-------------
+            delta_a = 0.018 #0.018 # about trim
+            delta_e = 0.5 #0.9#-0.2
+            delta_r = 0.00 #0.005
+            delta_t = 0.5
+        else:
+            mav.__init__(SIM.ts_simulation)
+            switch += 1
+    elif switch == 3:
+        if sim_time < 4*SIM.end_time/8.:
+            #-------set control surfaces-------------
+            delta_a = 0.018 #0.018 # about trim
+            delta_e = -0.5 #0.9#-0.2
+            delta_r = 0.00 #0.005
+            delta_t = 0.5
+        else:
+            mav.__init__(SIM.ts_simulation)
+            switch += 1
+    elif switch == 4:
+        if sim_time < 5*SIM.end_time/8.:
+            #-------set control surfaces-------------
+            delta_a = 0.018 #0.018 # about trim
+            delta_e = 0.0 #0.9#-0.2
+            delta_r = 0.005 #0.005
+            delta_t = 0.5
+        else:
+            mav.__init__(SIM.ts_simulation)
+            switch += 1
+    elif switch == 5:
+        if sim_time < 6*SIM.end_time/8.:
+            #-------set control surfaces-------------
+            delta_a = 0.018 #0.018 # about trim
+            delta_e = 0.0 #0.9#-0.2
+            delta_r = -0.005 #0.005
+            delta_t = 0.5
+        else:
+            mav.__init__(SIM.ts_simulation)
+            switch += 1
+    elif switch == 6:
+        if sim_time < 7*SIM.end_time/8.:
+            #-------set control surfaces-------------
+            delta_a = 0.018 #0.018 # about trim
+            delta_e = 0.0 #0.9#-0.2
+            delta_r = 0.00 #0.005
+            delta_t = 0.9
+        else:
+            mav.__init__(SIM.ts_simulation)
+            switch += 1
+    elif switch == 7:
+        if sim_time < 8*SIM.end_time/8.:
+            #-------set control surfaces-------------
+            delta_a = 0.018 #0.018 # about trim
+            delta_e = 0.0 #0.9#-0.2
+            delta_r = 0.00 #0.005
+            delta_t = 0.1
+        else:
+            mav.__init__(SIM.ts_simulation)
+            switch += 1
+
     delta = np.array([[delta_a, delta_e, delta_r, delta_t]]).T  # transpose to make it a column vector
 
     #-------physical system-------------
@@ -50,12 +127,12 @@ while sim_time < SIM.end_time:
 
     #-------update viewer-------------
     mav_view.update(mav.msg_true_state)  # plot body of MAV
-    '''
+
     data_view.update(mav.msg_true_state, # true states
                      mav.msg_true_state, # estimated states
                      mav.msg_true_state, # commanded states
                      SIM.ts_simulation)
-    '''
+
     if VIDEO == True:
         video.update(sim_time)
 
