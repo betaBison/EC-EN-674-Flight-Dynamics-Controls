@@ -17,6 +17,7 @@ from chap4.mav_dynamics import mav_dynamics
 from chap4.wind_simulation import wind_simulation
 import time
 
+control_test = False
 # initialize the visualization
 VIDEO = False  # True==write video, False==don't write video
 mav_view = mav_viewer()  # initialize the mav viewer
@@ -37,7 +38,7 @@ sim_time = SIM.start_time
 # main simulation loop
 print("Press Command-Q to exit...")
 switch = 0
-control_test = False
+
 while sim_time < SIM.end_time:
     if control_test == True:
         if switch == 0:
