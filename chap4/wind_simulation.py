@@ -12,7 +12,7 @@ import control.matlab as ctrl
 class wind_simulation:
     def __init__(self, Ts,Va=17):
         # steady state wind defined in the inertial frame
-        self._steady_state = np.array([[0., 0., 0.]]).T
+        self._steady_state = np.array([[3., 2., 1.]]).T
         # self.steady_state = np.array([[3., 1., 0.]]).T
 
         self._Ts = Ts
@@ -21,20 +21,24 @@ class wind_simulation:
         # Could pass current Va into the gust function and recalculate A and B matrices.
         #Va = 17
 
-        sigma_u = 1.06
+        sigma_u = 3.0 #1.06
         sigma_v = sigma_u
-        sigma_w = 0.7
+        sigma_w = 3.0 #0.7
         Lu = 200.
         Lv = Lu
         Lw = 50.
 
+        self._gust_u = 0.0
+        self._gust_v = 0.0
+        self._gust_w = 0.0
+
         # transfer functions for gust model
-        k1 = sgima_v*sqrt(3.*Va/Lv)
-        TF_u = ctrl.tf([sgima_u*sqrt(2.*Va/Lu)],[1.,Va/Lu],Ts)
-        k1 = sgima_v*sqrt(3.*Va/Lv)
-        TF_v = ctrl.tf([k1,k1*Va/(sqrt(3)*Lu)],[1.,2.*Va/Lu,(Va/Lu)**2]],Ts)
-        k2 = sgima_v*sqrt(3.*Va/Lw)
-        TF_w = ctrl.tf([k2,k2*Va/(sqrt(3)*Lw)],[1.,2.*Va/Lw,(Va/Lw)**2]],Ts)
+        k1 = sigma_u*sqrt(3.*Va/Lv)
+        TF_u = ctrl.tf([sigma_u*sqrt(2.*Va/Lu)],[1.,Va/Lu],Ts)
+        k1 = sigma_v*sqrt(3.*Va/Lv)
+        TF_v = ctrl.tf([k1,k1*Va/(sqrt(3)*Lu)],[1.,2.*Va/Lu,(Va/Lu)**2],Ts)
+        k2 = sigma_w*sqrt(3.*Va/Lw)
+        TF_w = ctrl.tf([k2,k2*Va/(sqrt(3)*Lw)],[1.,2.*Va/Lw,(Va/Lw)**2],Ts)
 
         # Conversion to state space and pull out matrices
         SS_u = ctrl.tf2ss(TF_u)
@@ -64,13 +68,13 @@ class wind_simulation:
         w = np.random.randn()  # zero mean unit variance Gaussian (white noise)
         # propagate Dryden model (Euler method): x[k+1] = x[k] + Ts*( A x[k] + B w[k] )
         #self._gust_state += self._Ts * (self._A @ self._gust_state + self._B * w)
-        self._gust_u += self._Ts * (self._A_u @ self._gust_u + self._B_u * w)
+        self._gust_u += self._Ts * (self._A_u * self._gust_u + self._B_u * w)
         gust_u = self._C_u @ self._gust_u
-        self._gust_v += self._Ts * (self._A_v @ self._gust_v + self._B_v * w)
+        self._gust_v += self._Ts * (self._A_v * self._gust_v + self._B_v * w)
         gust_v = self._C_v @ self._gust_v
-        self._gust_w += self._Ts * (self._A_w @ self._gust_w + self._B_w * w)
+        self._gust_w += self._Ts * (self._A_w * self._gust_w + self._B_w * w)
         gust_w = self._C_w @ self._gust_w
-        self._gust_state = np.concatenate((gust_u,gust_v,gust_w))
+        self._gust_state = np.array([[gust_u.item(0),gust_v.item(0),gust_w.item(0)]]).T
 
         # output the current gust: y[k] = C x[k]
         return self._gust_state

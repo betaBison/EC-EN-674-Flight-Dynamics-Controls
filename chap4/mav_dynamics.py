@@ -23,7 +23,7 @@ from math import sqrt,cos,sin,pi,atan2,asin
 from message_types.msg_state import msg_state
 
 import parameters.aerosonde_parameters as MAV
-from tools.tools import Quaternion2Euler #,Quaternion2Rotation
+from tools.tools import Quaternion2Euler, RotationVehicle2Body
 
 class mav_dynamics:
     def __init__(self, Ts):
@@ -151,9 +151,18 @@ class mav_dynamics:
 
     def _update_velocity_data(self, wind=np.zeros((6,1))):
         # compute airspeed
-        ur = self._state[3] - wind[0]
-        vr = self._state[4] - wind[1]
-        wr = self._state[5] - wind[2]
+        phi, theta, psi = Quaternion2Euler(self._state[6:10])
+        Rv2b = RotationVehicle2Body(phi, theta, psi)
+        wind_result = np.matmul(Rv2b,wind[0:3]) + wind[3:6]
+        self._wind = np.matmul(Rv2b,wind_result)
+
+        uw = wind_result.item(0)
+        vw = wind_result.item(1)
+        ww = wind_result.item(2)
+
+        ur = self._state[3] - uw
+        vr = self._state[4] - vw
+        wr = self._state[5] - ww
         self._Va = sqrt(ur**2+vr**2+wr**2)
         # compute angle of attack
         self._alpha = atan2(wr,ur)
@@ -291,7 +300,7 @@ class mav_dynamics:
         # update the class structure for the true state:
         #   [pn, pe, h, Va, alpha, beta, phi, theta, chi, p, q, r, Vg, wn, we, psi, gyro_bx, gyro_by, gyro_bz]
 
-
+        # TODO: verify that these are correct...
         Vg = sqrt(self._state[3]**2+self._state[4]**2+self._state[5]**2)
         gamma = atan2(self._state[5],sqrt(self._state[3]**2 + self._state[4]**2))
         chi = atan2(self._state[4],self._state[3])
