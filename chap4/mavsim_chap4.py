@@ -39,8 +39,8 @@ while sim_time < SIM.end_time:
     if switch == 0:
         if sim_time < SIM.end_time/8.:
             #-------set control surfaces-------------
-            delta_a = 0.023 #0.018 # about trim
-            delta_e = 0.0 #0.9#-0.2
+            delta_a = 0.01 #0.018 # about trim
+            delta_e = -0.2 #0.9#-0.2
             delta_r = 0.00 #0.005
             delta_t = 0.5
         else:
@@ -49,8 +49,8 @@ while sim_time < SIM.end_time:
     elif switch == 1:
         if sim_time < 2*SIM.end_time/8.:
             #-------set control surfaces-------------
-            delta_a = 0.013 #0.018 # about trim
-            delta_e = 0.0 #0.9#-0.2
+            delta_a = -0.005 #0.018 # about trim
+            delta_e = -0.2 #0.9#-0.2
             delta_r = 0.00 #0.005
             delta_t = 0.5
         else:
@@ -59,8 +59,8 @@ while sim_time < SIM.end_time:
     elif switch == 2:
         if sim_time <3*SIM.end_time/8.:
             #-------set control surfaces-------------
-            delta_a = 0.018 #0.018 # about trim
-            delta_e = 0.5 #0.9#-0.2
+            delta_a = 0.005 # about trim
+            delta_e = 0.05 #0.9#-0.2
             delta_r = 0.00 #0.005
             delta_t = 0.5
         else:
@@ -69,8 +69,8 @@ while sim_time < SIM.end_time:
     elif switch == 3:
         if sim_time < 4*SIM.end_time/8.:
             #-------set control surfaces-------------
-            delta_a = 0.018 #0.018 # about trim
-            delta_e = -0.5 #0.9#-0.2
+            delta_a = -0.005 #0.018 # about trim
+            delta_e = -0.4 #0.9#-0.2
             delta_r = 0.00 #0.005
             delta_t = 0.5
         else:
@@ -79,9 +79,9 @@ while sim_time < SIM.end_time:
     elif switch == 4:
         if sim_time < 5*SIM.end_time/8.:
             #-------set control surfaces-------------
-            delta_a = 0.018 #0.018 # about trim
-            delta_e = 0.0 #0.9#-0.2
-            delta_r = 0.005 #0.005
+            delta_a = 0.005 #0.018 # about trim
+            delta_e = -0.2 #0.9#-0.2
+            delta_r = 0.008 #0.005
             delta_t = 0.5
         else:
             mav.__init__(SIM.ts_simulation)
@@ -89,9 +89,9 @@ while sim_time < SIM.end_time:
     elif switch == 5:
         if sim_time < 6*SIM.end_time/8.:
             #-------set control surfaces-------------
-            delta_a = 0.018 #0.018 # about trim
-            delta_e = 0.0 #0.9#-0.2
-            delta_r = -0.005 #0.005
+            delta_a = 0.005 #0.018 # about trim
+            delta_e = -0.2 #0.9#-0.2
+            delta_r = 0.000 #0.005
             delta_t = 0.5
         else:
             mav.__init__(SIM.ts_simulation)
@@ -99,8 +99,8 @@ while sim_time < SIM.end_time:
     elif switch == 6:
         if sim_time < 7*SIM.end_time/8.:
             #-------set control surfaces-------------
-            delta_a = 0.018 #0.018 # about trim
-            delta_e = 0.0 #0.9#-0.2
+            delta_a = -0.0155 #0.018 # about trim
+            delta_e = -0.2 #0.9#-0.2
             delta_r = 0.00 #0.005
             delta_t = 0.9
         else:
@@ -109,8 +109,8 @@ while sim_time < SIM.end_time:
     elif switch == 7:
         if sim_time < 8*SIM.end_time/8.:
             #-------set control surfaces-------------
-            delta_a = 0.018 #0.018 # about trim
-            delta_e = 0.0 #0.9#-0.2
+            delta_a = 0.015 #0.018 # about trim
+            delta_e = -0.2 #0.9#-0.2
             delta_r = 0.00 #0.005
             delta_t = 0.1
         else:

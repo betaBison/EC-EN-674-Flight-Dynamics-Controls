@@ -7,9 +7,10 @@ mav_dynamics
 
 '''
 Questions:
-C_ell_0 vs C_L_0 in parameter file
 Using delta_t parameter for prop thrust
 Final Vg, gamma, chi calculations
+wind functions
+S_prop??
 '''
 
 
@@ -157,7 +158,7 @@ class mav_dynamics:
         # compute angle of attack
         self._alpha = atan2(wr,ur)
         # compute sideslip angle
-        self._beta =asin(vr/sqrt(ur**2+vr**2+wr**2))
+        self._beta = asin(vr/sqrt(ur**2+vr**2+wr**2))
 
     def _forces_moments(self, delta):
         """
@@ -166,22 +167,32 @@ class mav_dynamics:
         :return: Forces and Moments on the UAV np.matrix(Fx, Fy, Fz, Ml, Mn, Mm)
         """
         # pull out neeed inputs
-        p = self._state[10]
-        q = self._state[11]
-        r = self._state[12]
+        e0 = self._state.item(6)
+        e1 = self._state.item(7)
+        e2 = self._state.item(8)
+        e3 = self._state.item(9)
+        p = self._state.item(10)
+        q = self._state.item(11)
+        r = self._state.item(12)
         delta_a = delta.item(0)
         delta_e = delta.item(1)
         delta_r = delta.item(2)
         delta_t = delta.item(3)
 
+        '''
         # could convert straight from quaternions if I wanted to
         phi, theta, psi = Quaternion2Euler(self._state[6:10])
-
         M1 = np.matrix([[-MAV.mass*MAV.gravity*sin(theta)],
                         [MAV.mass*MAV.gravity*cos(theta)*sin(phi)],
-                        [MAV.mass*MAV.gravity*sin(theta)*cos(phi)]])
+                        [MAV.mass*MAV.gravity*cos(theta)*cos(phi)]])
+        '''
+        M1 = np.matrix([[2.*(e1*e3-e2*e0)],
+                        [2.*(e2*e3+e1*e0)],
+                        [e3**2+e0**2-e1**2-e2**2]])
 
-        Tp = self.propThrust(delta_t)
+        M1 *= MAV.mass*MAV.gravity
+
+        Tp = self.propThrust(delta_t,self._Va)
 
         M2 = np.matrix([[Tp],
                        [0.],
@@ -191,14 +202,13 @@ class mav_dynamics:
         Cx = -self.CD(self._alpha)*cos(self._alpha) + self.CL(self._alpha)*sin(self._alpha)
         Cxq = -MAV.C_D_q*cos(self._alpha) + MAV.C_L_q*sin(self._alpha)
         Cxde = -MAV.C_D_delta_e*cos(self._alpha) + MAV.C_L_delta_e*sin(self._alpha)
-        Cz = -self.CD(self._alpha)*sin(self._alpha) + self.CL(self._alpha)*cos(self._alpha)
-        Czq = -MAV.C_D_q*sin(self._alpha) + MAV.C_L_q*cos(self._alpha)
-        Czde = -MAV.C_D_delta_e*sin(self._alpha) + MAV.C_L_delta_e*cos(self._alpha)
+        Cz = -self.CD(self._alpha)*sin(self._alpha) - self.CL(self._alpha)*cos(self._alpha)
+        Czq = -MAV.C_D_q*sin(self._alpha) - MAV.C_L_q*cos(self._alpha)
+        Czde = -MAV.C_D_delta_e*sin(self._alpha) - MAV.C_L_delta_e*cos(self._alpha)
 
-
-        M3 = np.matrix([[float(Cx+Cxq*MAV.c*q/(2.*self._Va))],
-                        [float(MAV.C_Y_0 + MAV.C_Y_beta*self._beta + MAV.C_Y_p*MAV.b*p/(2.*self._Va) + MAV.C_Y_r*MAV.b*r/(2*self._Va))],
-                        [float(Cz + Czq*MAV.c*q/(2.*self._Va))]])
+        M3 = np.matrix([[Cx+Cxq*MAV.c*q/(2.*self._Va)],
+                        [MAV.C_Y_0 + MAV.C_Y_beta*self._beta + MAV.C_Y_p*MAV.b*p/(2.*self._Va) + MAV.C_Y_r*MAV.b*r/(2*self._Va)],
+                        [Cz + Czq*MAV.c*q/(2.*self._Va)]])
 
         M4 = np.matrix([[Cxde*delta_e],
                         [MAV.C_Y_delta_a*delta_a + MAV.C_Y_delta_r*delta_r],
@@ -215,15 +225,16 @@ class mav_dynamics:
         self._forces[1] = fy
         self._forces[2] = fz
 
-        M5 = np.matrix([[float(MAV.b*(MAV.C_ell_0 + MAV.C_ell_beta*self._beta + MAV.C_ell_p*MAV.b*p/(2.*self._Va) + MAV.C_ell_r*MAV.b*r/(2.*self._Va)))],
-                        [float(MAV.c*(MAV.C_m_0 + MAV.C_m_alpha*self._alpha + MAV.C_m_q*MAV.c*q/(2.*self._Va)))],
-                        [float(MAV.b*(MAV.C_n_0 + MAV.C_n_beta*self._beta + MAV.C_n_p*MAV.b*p/(2.*self._Va) + MAV.C_n_r*MAV.b*r/(2.*self._Va)))]])
 
-        M6 = np.matrix([[float(MAV.b*(MAV.C_ell_delta_a*delta_a + MAV.C_ell_delta_r*delta_r))],
-                        [float(MAV.c*(MAV.C_m_delta_e*delta_e))],
-                        [float(MAV.b*(MAV.C_n_delta_a*delta_a + MAV.C_n_delta_r*delta_r))]])
+        M5 = np.matrix([[MAV.b*(MAV.C_ell_0 + MAV.C_ell_beta*self._beta + MAV.C_ell_p*MAV.b*p/(2.*self._Va) + MAV.C_ell_r*MAV.b*r/(2.*self._Va))],
+                        [MAV.c*(MAV.C_m_0 + MAV.C_m_alpha*self._alpha + MAV.C_m_q*MAV.c*q/(2.*self._Va))],
+                        [MAV.b*(MAV.C_n_0 + MAV.C_n_beta*self._beta + MAV.C_n_p*MAV.b*p/(2.*self._Va) + MAV.C_n_r*MAV.b*r/(2.*self._Va))]])
 
-        Qp = self.propTorque(delta_t)
+        M6 = np.matrix([[MAV.b*(MAV.C_ell_delta_a*delta_a + MAV.C_ell_delta_r*delta_r)],
+                        [MAV.c*(MAV.C_m_delta_e*delta_e)],
+                        [MAV.b*(MAV.C_n_delta_a*delta_a + MAV.C_n_delta_r*delta_r)]])
+
+        Qp = self.propTorque(delta_t,self._Va)
 
         M7 = np.matrix([[Qp],
                         [0.],
@@ -241,7 +252,8 @@ class mav_dynamics:
         '''
         UAV book equation 4.11
         '''
-        result = MAV.C_D_p + ((MAV.C_L_0+alpha*MAV.C_L_alpha)**2)/(pi*MAV.e*MAV.AR)
+        #result = MAV.C_D_p + ((MAV.C_L_0+alpha*MAV.C_L_alpha)**2)/(pi*MAV.e*MAV.AR)
+        result = MAV.C_D_0 + MAV.C_D_alpha*alpha
         return result
 
     def CL(self,alpha):
@@ -249,29 +261,29 @@ class mav_dynamics:
         This is a linear coefficient model that is not valid over a wide
         range of angles of attack. UAV Book equation 4.13
         '''
-        result = MAV.C_D_0 + MAV.C_D_alpha*alpha
+        result = MAV.C_L_0 + MAV.C_L_alpha*alpha
         return result
 
-    def propThrust(self,delta_t):
+    def propThrust(self,delta_t,V_a):
 
-        Omega_op = self.propOperatingSpeed(delta_t)
+        Omega_op = self.propOperatingSpeed(delta_t,V_a)
 
-        J_op = 2*pi*self._Va/(Omega_op*MAV.D_prop)
+        J_op = 2.*pi*V_a/(Omega_op*MAV.D_prop)
         Ct_op = MAV.C_T2*J_op**2 + MAV.C_T1*J_op + MAV.C_T0
 
-        result = Ct_op*MAV.rho*(Omega_op**2)*(MAV.D_prop**4)/((2*pi)**2)
+        result = Ct_op*MAV.rho*(Omega_op**2)*(MAV.D_prop**4)/((2.*pi)**2)
         return result
 
-    def propOperatingSpeed(self,delta_t):
-        a = MAV.rho*MAV.D_prop**5*MAV.C_Q0/(2*pi)**2
-        b = MAV.rho*MAV.D_prop**4*MAV.C_Q1*self._Va/(2*pi) + MAV.KQ*MAV.K_V/MAV.R_motor
-        c = MAV.rho*MAV.D_prop**3*MAV.C_Q2*self._Va**2 - MAV.KQ*MAV.V_max*delta_t/MAV.R_motor + MAV.KQ*MAV.i0
-        result = (-b + sqrt(b**2 - 4*a*c))/(2*a)
+    def propOperatingSpeed(self,delta_t,V_a):
+        a = MAV.rho*MAV.D_prop**5*MAV.C_Q0/(2.*pi)**2
+        b = MAV.rho*MAV.D_prop**4*MAV.C_Q1*V_a/(2.*pi) + MAV.KQ*MAV.K_V/MAV.R_motor
+        c = MAV.rho*MAV.D_prop**3*MAV.C_Q2*V_a**2 - MAV.KQ*MAV.V_max*delta_t/MAV.R_motor + MAV.KQ*MAV.i0
+        result = (-b + sqrt(b**2 - 4.*a*c))/(2.*a)
         return result
 
-    def propTorque(self,delta_t):
+    def propTorque(self,delta_t,V_a):
         Vin = MAV.V_max*delta_t
-        Omega_op = self.propOperatingSpeed(delta_t)
+        Omega_op = self.propOperatingSpeed(delta_t,V_a)
         result = MAV.KQ*((Vin - MAV.K_V*Omega_op)/MAV.R_motor - MAV.i0)
         return result
 
@@ -283,6 +295,8 @@ class mav_dynamics:
         Vg = sqrt(self._state[3]**2+self._state[4]**2+self._state[5]**2)
         gamma = atan2(self._state[5],sqrt(self._state[3]**2 + self._state[4]**2))
         chi = atan2(self._state[4],self._state[3])
+
+
 
         phi, theta, psi = Quaternion2Euler(self._state[6:10])
         self.msg_true_state.pn = self._state.item(0)
