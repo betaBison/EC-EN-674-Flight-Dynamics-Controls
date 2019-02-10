@@ -42,7 +42,7 @@ delta_a = 0.0
 delta_r = 0.0
 fm = np.zeros((6,np.shape(delta_e)[0]))
 for i in range(np.shape(fm)[1]):
-  delta = np.array([[delta_e.item(i),delta_t,delta_a,delta_r]])
+  delta = np.array([[delta_a,delta_e.item(i),delta_r,delta_t]])
   fm[:,i] = mav._forces_moments(delta).reshape(6,)
 
 
@@ -64,7 +64,7 @@ delta_e = 0.
 delta_t = np.linspace(0.4,1.0,num=10)
 fm = np.zeros((6,np.shape(delta_t)[0]))
 for i in range(np.shape(fm)[1]):
-  delta = np.array([[delta_e,delta_t.item(i),delta_a,delta_r]])
+  delta = np.array([[delta_a,delta_e,delta_r,delta_t.item(i)]])
   fm[:,i] = mav._forces_moments(delta).reshape(6,)
 
 axs = [ax2,ax6,ax10,ax14,ax18,ax22]
@@ -86,7 +86,7 @@ delta_t = 0.8
 delta_a = np.linspace(-0.2,0.2,num=10)
 fm = np.zeros((6,np.shape(delta_a)[0]))
 for i in range(np.shape(fm)[1]):
-  delta = np.array([[delta_e,delta_t,delta_a.item(i),delta_r]])
+  delta = np.array([[delta_a.item(i),delta_e,delta_r,delta_t,]])
   fm[:,i] = mav._forces_moments(delta).reshape(6,)
 
 
@@ -108,7 +108,7 @@ delta_a = 0.0
 delta_r = np.linspace(-0.02,0.02,num=10)
 fm = np.zeros((6,np.shape(delta_r)[0]))
 for i in range(np.shape(fm)[1]):
-  delta = np.array([[delta_e,delta_t,delta_a,delta_r.item(i)]])
+  delta = np.array([[delta_a,delta_e,delta_r.item(i),delta_t]])
   fm[:,i] = mav._forces_moments(delta).reshape(6,)
 
 
