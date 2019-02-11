@@ -20,7 +20,7 @@ from math import sqrt,cos,sin,pi,atan2,asin
 from message_types.msg_state import msg_state
 
 import parameters.aerosonde_parameters as MAV
-from tools.tools import Quaternion2Euler, RotationVehicle2Body
+from tools.tools import Quaternion2Euler, RotationVehicle2Body, RotationBody2Vehicle
 
 class mav_dynamics:
     def __init__(self, Ts):
@@ -165,6 +165,16 @@ class mav_dynamics:
         self._alpha = atan2(wr,ur)
         # compute sideslip angle
         self._beta = asin(vr/sqrt(ur**2+vr**2+wr**2))
+        # Vg, chi, gamma
+        Rb2v = RotationBody2Vehicle(phi, theta, psi)
+
+        Vg_result = np.matmul(Rb2v,self._state[3:6])
+        Vg_n = Vg_result.item(0)
+        Vg_e = Vg_result.item(1)
+        Vg_d = Vg_result.item(2)
+        self._Vg = sqrt(Vg_n**2+Vg_e**2+Vg_d**2)
+        self.gamma = atan2(-Vg_d,sqrt(Vg_n**2 + Vg_e**2))
+        self.chi = atan2(Vg_e,Vg_n)
 
     def _forces_moments(self, delta):
         """
@@ -185,13 +195,6 @@ class mav_dynamics:
         delta_r = delta.item(2)
         delta_t = delta.item(3)
 
-        '''
-        # could convert straight from quaternions if I wanted to
-        phi, theta, psi = Quaternion2Euler(self._state[6:10])
-        M1 = np.matrix([[-MAV.mass*MAV.gravity*sin(theta)],
-                        [MAV.mass*MAV.gravity*cos(theta)*sin(phi)],
-                        [MAV.mass*MAV.gravity*cos(theta)*cos(phi)]])
-        '''
         M1 = np.matrix([[2.*(e1*e3-e2*e0)],
                         [2.*(e2*e3+e1*e0)],
                         [e3**2+e0**2-e1**2-e2**2]])
@@ -304,13 +307,6 @@ class mav_dynamics:
         # update the class structure for the true state:
         #   [pn, pe, h, Va, alpha, beta, phi, theta, chi, p, q, r, Vg, wn, we, psi, gyro_bx, gyro_by, gyro_bz]
 
-        # TODO: verify that these are correct...
-        Vg = sqrt(self._state[3]**2+self._state[4]**2+self._state[5]**2)
-        gamma = atan2(self._state[5],sqrt(self._state[3]**2 + self._state[4]**2))
-        chi = atan2(self._state[4],self._state[3])
-
-
-
         phi, theta, psi = Quaternion2Euler(self._state[6:10])
         self.msg_true_state.pn = self._state.item(0)
         self.msg_true_state.pe = self._state.item(1)
@@ -321,9 +317,9 @@ class mav_dynamics:
         self.msg_true_state.phi = phi
         self.msg_true_state.theta = theta
         self.msg_true_state.psi = psi
-        self.msg_true_state.Vg = Vg
-        self.msg_true_state.gamma = gamma
-        self.msg_true_state.chi = chi
+        self.msg_true_state.Vg = self._Vg
+        self.msg_true_state.gamma = self.gamma
+        self.msg_true_state.chi = self.chi
         self.msg_true_state.p = self._state.item(10)
         self.msg_true_state.q = self._state.item(11)
         self.msg_true_state.r = self._state.item(12)
