@@ -7,10 +7,7 @@ mav_dynamics
 
 '''
 Questions:
-Using delta_t parameter for prop thrust
 Final Vg, gamma, chi calculations
-wind functions
-S_prop??
 '''
 
 
@@ -262,7 +259,7 @@ class mav_dynamics:
         UAV book equation 4.11
         '''
         #result = MAV.C_D_p + ((MAV.C_L_0+alpha*MAV.C_L_alpha)**2)/(pi*MAV.e*MAV.AR)
-        result = MAV.C_D_0 + MAV.C_D_alpha*alpha
+        result = (1-self.calcSigma(alpha))*(MAV.C_D_0 + MAV.C_D_alpha*alpha)+self.calcSigma(alpha)*(2.0*np.sign(alpha)*sin(alpha)**2*cos(alpha))
         return result
 
     def CL(self,alpha):
@@ -270,7 +267,14 @@ class mav_dynamics:
         This is a linear coefficient model that is not valid over a wide
         range of angles of attack. UAV Book equation 4.13
         '''
-        result = MAV.C_L_0 + MAV.C_L_alpha*alpha
+        result = (1-self.calcSigma(alpha))*(MAV.C_L_0 + MAV.C_L_alpha*alpha)+self.calcSigma(alpha)*(2.0*np.sign(alpha)*sin(alpha)**2*cos(alpha))
+        return result
+
+    def calcSigma(self,alpha):
+        # blending function according to ch 4 UAV book slides
+        nom = 1.0 + np.exp(-MAV.M*(alpha-MAV.alpha0))+np.exp(MAV.M*(alpha+MAV.alpha0))
+        den = (1.0 + np.exp(-MAV.M*(alpha-MAV.alpha0)))*(1+np.exp(MAV.M*(alpha+MAV.alpha0)))
+        result = nom/den
         return result
 
     def propThrust(self,delta_t,V_a):
@@ -285,7 +289,7 @@ class mav_dynamics:
 
     def propOperatingSpeed(self,delta_t,V_a):
         a = MAV.rho*MAV.D_prop**5*MAV.C_Q0/(2.*pi)**2
-        b = MAV.rho*MAV.D_prop**4*MAV.C_Q1*V_a/(2.*pi) + MAV.KQ*MAV.K_V/MAV.R_motor
+        b = MAV.rho*MAV.D_prop**4*MAV.C_Q1*V_a/(2.*pi) + MAV.KQ**2/MAV.R_motor
         c = MAV.rho*MAV.D_prop**3*MAV.C_Q2*V_a**2 - MAV.KQ*MAV.V_max*delta_t/MAV.R_motor + MAV.KQ*MAV.i0
         result = (-b + sqrt(b**2 - 4.*a*c))/(2.*a)
         return result
@@ -293,7 +297,7 @@ class mav_dynamics:
     def propTorque(self,delta_t,V_a):
         Vin = MAV.V_max*delta_t
         Omega_op = self.propOperatingSpeed(delta_t,V_a)
-        result = MAV.KQ*((Vin - MAV.K_V*Omega_op)/MAV.R_motor - MAV.i0)
+        result = MAV.KQ*((Vin - MAV.KQ*Omega_op)/MAV.R_motor - MAV.i0)
         return result
 
     def _update_msg_true_state(self):
