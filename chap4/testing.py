@@ -11,14 +11,12 @@ def propThrust(delta_t,V_a):
 
     J_op = 2.*pi*V_a/(Omega_op*MAV.D_prop)
     Ct_op = MAV.C_T2*J_op**2 + MAV.C_T1*J_op + MAV.C_T0
-    print("Ct_op",Ct_op)
-
     result = Ct_op*MAV.rho*(Omega_op**2)*(MAV.D_prop**4)/((2.*pi)**2)
     return result
 
 def propOperatingSpeed(delta_t,V_a):
     a = MAV.rho*MAV.D_prop**5*MAV.C_Q0/(2.*pi)**2
-    b = MAV.rho*MAV.D_prop**4*MAV.C_Q1*V_a/(2.*pi) + MAV.KQ*MAV.K_V/MAV.R_motor
+    b = MAV.rho*MAV.D_prop**4*MAV.C_Q1*V_a/(2.*pi) + MAV.KQ*MAV.KQ/MAV.R_motor
     c = MAV.rho*MAV.D_prop**3*MAV.C_Q2*V_a**2 - MAV.KQ*MAV.V_max*delta_t/MAV.R_motor + MAV.KQ*MAV.i0
     result = (-b + sqrt(b**2 - 4.*a*c))/(2.*a)
     return result
@@ -26,9 +24,8 @@ def propOperatingSpeed(delta_t,V_a):
 def propTorque(delta_t,V_a):
     Vin = MAV.V_max*delta_t
     Omega_op = propOperatingSpeed(delta_t,V_a)
-    result = MAV.KQ*((Vin - MAV.K_V*Omega_op)/MAV.R_motor - MAV.i0)
+    result = MAV.KQ*((Vin - MAV.KQ*Omega_op)/MAV.R_motor - MAV.i0)
     return result
-
 
 airspeed = np.linspace(0,30,31)
 voltages = np.linspace(0.2,1.0,5)
