@@ -245,7 +245,7 @@ class mav_dynamics:
 
         Qp = self.propTorque(delta_t,self._Va)
 
-        M7 = np.matrix([[Qp],
+        M7 = np.matrix([[-Qp],
                         [0.],
                         [0.]])
 
@@ -261,8 +261,8 @@ class mav_dynamics:
         '''
         UAV book equation 4.11
         '''
-        #result = MAV.C_D_p + ((MAV.C_L_0+alpha*MAV.C_L_alpha)**2)/(pi*MAV.e*MAV.AR)
-        result = (1-self.calcSigma(alpha))*(MAV.C_D_0 + MAV.C_D_alpha*alpha)+self.calcSigma(alpha)*(2.0*np.sign(alpha)*sin(alpha)**2*cos(alpha))
+        result = MAV.C_D_p + ((MAV.C_L_0+alpha*MAV.C_L_alpha)**2)/(pi*MAV.e*MAV.AR)
+        #result = (1-self.calcSigma(alpha))*(MAV.C_D_0 + MAV.C_D_alpha*alpha)+self.calcSigma(alpha)*(2.0*np.sign(alpha)*sin(alpha)**2*cos(alpha))
         return result
 
     def CL(self,alpha):
