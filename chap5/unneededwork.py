@@ -91,10 +91,10 @@ def calcLinearDerivatives(x_star,u_star,alpha,Va,beta):
     psi_dot = q*np.sin(phi)/np.cos(theta)+r*np.cos(phi)/np.cos(theta)
 
     # rotatonal dynamics
-    p_dot = MAV.gamma1*p*q - MAV.gamma2*q*r + \
-        0.5*MAV.rho*Va**2*MAV.S_wing*MAV.b*(MAV.C_p_0+MAV.C_p_beta*beta*MAV.C_p_p*MAV.b*p/(2.*Va)+MAV.C_p_r*MAV.b*r/(2.*Va)+MAV.C_p_delta_a*delta_a+MAV.C_p_delta_r*delta_r)
+    # check the multiply that should be minus p_dot = MAV.gamma1*p*q - MAV.gamma2*q*r + \
+        0.5*MAV.rho*Va**2*MAV.S_wing*MAV.b*(MAV.C_p_0+MAV.C_p_beta*beta-MAV.C_p_p*MAV.b*p/(2.*Va)+MAV.C_p_r*MAV.b*r/(2.*Va)+MAV.C_p_delta_a*delta_a+MAV.C_p_delta_r*delta_r)
     q_dot = MAV.gamma5*p*r - MAV.gamma6*(p**2-r**2) + MAV.rho*Va**2*MAV.S_wing*MAV.c*(MAV.C_m_0+MAV.C_m_alpha*alpha+MAV.C_m_q*MAV.c*q/(2.*Va)+MAV.C_m_delta_e*delta_e)/(2.*MAV.Jy)
-    r_dot = MAV.gamma7*p*q - MAV.gamma1*q*r + \
+    # check the multiply that should be minus r_dot = MAV.gamma7*p*q - MAV.gamma1*q*r + \
         0.5*MAV.rho*Va**2*MAV.S_wing*MAV.b*(MAV.C_r_0+MAV.C_r_beta*beta*MAV.C_r_p*MAV.b*p/(2.*Va)+MAV.C_r_r*MAV.b*r/(2.*Va)+MAV.C_r_delta_a*delta_a+MAV.C_r_delta_r*delta_r)
 
     # collect the derivative of the states

@@ -34,7 +34,7 @@ mav = mav_dynamics(SIM.ts_simulation)
 
 # use compute_trim function to compute trim state and trim input
 Va = 25.
-gamma = 30.*np.pi/180.
+gamma = 1.*np.pi/180.
 trim_state, trim_input = compute_trim(mav, Va, gamma)
 print("trim_state=",trim_state)
 print("trim_input=",trim_input)

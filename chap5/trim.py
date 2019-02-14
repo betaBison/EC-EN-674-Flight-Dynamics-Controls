@@ -20,10 +20,10 @@ def compute_trim(mav, Va, gamma):
     # define initial state and input
     state0 = np.array([[0.0],  # (0)
                        [0.0],   # (1)
-                       [-100.0],   # (2)
-                       [25.0],    # u0
+                       [0.0],   # (2)
+                       [20.0],    # u0
                        [0.0],    # v0
-                       [0.1],    # w0
+                       [0.0],    # w0
                        [e0],    # e0
                        [e1],    # e1
                        [e2],    # e2
@@ -31,10 +31,10 @@ def compute_trim(mav, Va, gamma):
                        [0.0],    # p0
                        [0.0],    # q0
                        [0.0]])   # r0
-    delta_a = 0.005
-    delta_e = -0.2
-    delta_r = 0.008
-    delta_t = 0.6
+    delta_a = 0.0
+    delta_e = 0.1
+    delta_r = 0.0
+    delta_t = 0.5
     delta0 = np.array([[delta_a, delta_e, delta_r, delta_t]]).T
     x0 = np.concatenate((state0, delta0), axis=0)
     # define equality constraints
@@ -90,10 +90,22 @@ def calcX_dot_star(Va,gamma):
 def trim_objective(x, mav, Va, gamma):
     print("x=",x)
     x_star = x[0:13]
+    e0 = x_star[6]
+    e1 = x_star[7]
+    e2 = x_star[8]
+    e3 = x_star[9]
+    normE = np.sqrt(e0**2+e1**2+e2**2+e3**2)
+    e0 /= normE
+    e1 /= normE
+    e2 /= normE
+    e3 /= normE
+    x_star[6] = e0
+    x_star[7] = e1
+    x_star[8] = e2
+    x_star[9] = e3
     delta_star = x[13:17]
     mav._state = x_star
     mav._update_velocity_data()
-
     Va_star = Va
     gamma_star = gamma
     x_dot_star = calcX_dot_star(Va_star,gamma_star)
@@ -103,5 +115,5 @@ def trim_objective(x, mav, Va, gamma):
     force_moments = mav._forces_moments(delta_star)
     f_result = mav._derivatives(x_star,force_moments)
 
-    J = np.linalg.norm(x_dot_star[2:14] - f_result[2:14])**2
+    J = np.linalg.norm(x_dot_star[2:13] - f_result[2:13])**2
     return J
