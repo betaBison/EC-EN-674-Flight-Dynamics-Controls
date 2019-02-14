@@ -7,6 +7,13 @@ def Euler2Quaternion(phi, theta, psi):
     e1 = cos(psi/2.)*cos(theta/2.)*sin(phi/2.)-sin(psi/2.)*sin(theta/2.)*cos(phi/2.)
     e2 = cos(psi/2.)*sin(theta/2.)*cos(phi/2.)+sin(psi/2.)*cos(theta/2.)*sin(phi/2.)
     e3 = sin(psi/2.)*cos(theta/2.)*cos(phi/2.)-cos(psi/2.)*sin(theta/2.)*sin(phi/2.)
+
+    normE = np.sqrt(e0**2+e1**2+e2**2+e3**2)
+    e0 /= normE
+    e1 /= normE
+    e2 /= normE
+    e3 /= normE
+
     e = np.array([e0, e1, e2, e3])
     return e
 
@@ -15,9 +22,15 @@ def Quaternion2Euler(e):
     e1 = e[1]
     e2 = e[2]
     e3 = e[3]
-    phi = atan2(2.*(e0*e1+e2*e3),(e0**2+e3**2-e1**2-e2**2))
-    theta = asin(2.*(e0*e2-e1*e3))
-    psi = atan2(2.*(e0*e3+e1*e2),(e0**2+e1**2-e2**2-e3**2))
+    normE = np.sqrt(e0**2+e1**2+e2**2+e3**2)
+    e0 /= normE
+    e1 /= normE
+    e2 /= normE
+    e3 /= normE
+
+    phi = np.arctan2(2.*(e0*e1+e2*e3),(e0**2+e3**2-e1**2-e2**2))
+    theta = np.arcsin(2.*(e0*e2-e1*e3))
+    psi = np.arctan2(2.*(e0*e3+e1*e2),(e0**2+e1**2-e2**2-e3**2))
     return phi, theta, psi
 
 def RotationVehicle2Body(phi,theta,psi):
