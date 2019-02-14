@@ -153,10 +153,10 @@ class mav_dynamics:
         e1 = self._state.item(7)
         e2 = self._state.item(8)
         e3 = self._state.item(9)
-        print("EEEES=",e0,e1,e2,e3)
+        #print("EEEES=",e0,e1,e2,e3)
 
         phi, theta, psi = Quaternion2Euler(np.array([e0,e1,e2,e3]))
-        print("angles=",phi,theta,psi)
+        #print("angles=",phi,theta,psi)
         Rv2b = RotationVehicle2Body(phi, theta, psi)
         wind_result = np.matmul(Rv2b,wind[0:3]) + wind[3:6]
         self._wind = np.matmul(Rv2b,wind_result)
@@ -169,7 +169,7 @@ class mav_dynamics:
         vr = self._state[4] - vw
         wr = self._state[5] - ww
         self._Va = sqrt(ur**2+vr**2+wr**2)
-        print("update_velocities =",self._Va)
+        #print("update_velocities =",self._Va)
         # compute angle of attack
         self._alpha = atan2(wr,ur)
         # compute sideslip angle
@@ -303,7 +303,7 @@ class mav_dynamics:
         a = MAV.rho*MAV.D_prop**5*MAV.C_Q0/(2.*pi)**2
         b = MAV.rho*MAV.D_prop**4*MAV.C_Q1*V_a/(2.*pi) + MAV.KQ**2/MAV.R_motor
         c = MAV.rho*MAV.D_prop**3*MAV.C_Q2*V_a**2 - MAV.KQ*MAV.V_max*delta_t/MAV.R_motor + MAV.KQ*MAV.i0
-        print("V_a=",V_a)
+        #print("V_a=",V_a)
         result = (-b + sqrt(b**2 - 4.*a*c))/(2.*a)
         return result
 

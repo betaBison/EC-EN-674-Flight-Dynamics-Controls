@@ -1,0 +1,133 @@
+>> A_lon
+
+A_lon =
+
+   -0.2067    0.4999   -1.2222   -9.7977         0
+   -0.5609   -4.4638   24.3707   -0.4913         0
+    0.2003   -3.9941   -5.2981         0         0
+         0         0    1.0000         0         0
+    0.0501   -0.9987         0   25.0000         0
+
+
+>> B_lon
+
+B_lon =
+
+   -0.1382    8.1369
+   -2.5862         0
+  -36.1238         0
+         0         0
+         0         0
+
+
+>> A_lat
+
+A_lat =
+
+   -0.7768    1.2522  -24.9686    9.7977         0
+   -3.8748  -23.1311   10.9438         0         0
+    0.7850   -3.0162   -1.2335         0         0
+         0    1.0000    0.0501         0         0
+         0         0    1.0013    0.0000         0
+
+
+>> B_lat
+
+B_lat =
+
+    1.4862    3.7650
+  131.1400   -1.7877
+    4.9935  -24.9180
+         0         0
+         0         0
+
+
+>> T_phi_delta_a
+
+T_phi_delta_a =
+
+      131.1
+  -------------
+  s^2 + 23.13 s
+
+Continuous-time transfer function.
+
+
+>> T_chi_phi
+
+T_chi_phi =
+
+  0.3924
+  ------
+    s
+
+Continuous-time transfer function.
+
+>> T_theta_delta_e
+
+T_theta_delta_e =
+
+         -36.12
+  ---------------------
+  s^2 + 5.298 s + 99.98
+
+Continuous-time transfer function.
+
+
+>> T_h_theta
+
+T_h_theta =
+
+  25
+  --
+  s
+
+Continuous-time transfer function.
+
+
+>> T_h_Va
+
+T_h_Va =
+
+  0.05011
+  -------
+     s
+
+Continuous-time transfer function.
+
+
+>>     T_Va_delta_t
+
+
+T_Va_delta_t =
+
+    8.137
+  ----------
+  s + 0.2817
+
+Continuous-time transfer function.
+
+
+>> T_Va_theta
+
+T_Va_theta =
+
+    -9.81
+  ----------
+  s + 0.2817
+
+Continuous-time transfer function.
+
+
+>> T_v_delta_r
+
+T_v_delta_r =
+
+    3.765
+  ----------
+  s + 0.7768
+
+Continuous-time transfer function.
+
+
+>>

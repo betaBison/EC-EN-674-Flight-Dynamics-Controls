@@ -17,7 +17,8 @@ from chap3.data_viewer import data_viewer
 from chap4.mav_dynamics import mav_dynamics
 from chap4.wind_simulation import wind_simulation
 from chap5.trim import compute_trim
-#from chap5.compute_models import compute_ss_model, compute_tf_model
+from chap5.compute_models import compute_ss_model, compute_tf_model
+import time
 
 # initialize the visualization
 VIDEO = False  # True==write video, False==don't write video
@@ -34,20 +35,20 @@ mav = mav_dynamics(SIM.ts_simulation)
 
 # use compute_trim function to compute trim state and trim input
 Va = 25.
-gamma = 1.*np.pi/180.
+gamma = 0.*np.pi/180.
 trim_state, trim_input = compute_trim(mav, Va, gamma)
-print("trim_state=",trim_state)
-print("trim_input=",trim_input)
+#print("trim_state=",trim_state)
+#print("trim_input=",trim_input)
 mav._state = trim_state  # set the initial state of the mav to the trim state
 delta = trim_input  # set input to constant constant trim input
 
-'''
+
 # # compute the state space model linearized about trim
-A_lon, B_lon, A_lat, B_lat = compute_ss_model(mav, trim_state, trim_input)
+#A_lon, B_lon, A_lat, B_lat = compute_ss_model(mav, trim_state, trim_input)
 T_phi_delta_a, T_chi_phi, T_theta_delta_e, T_h_theta, \
 T_h_Va, T_Va_delta_t, T_Va_theta, T_beta_delta_r \
     = compute_tf_model(mav, trim_state, trim_input)
-'''
+
 # initialize the simulation time
 sim_time = SIM.start_time
 

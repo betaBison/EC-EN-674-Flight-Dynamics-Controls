@@ -21,6 +21,8 @@ def compute_tf_model(mav, trim_state, trim_input):
     mav._update_velocity_data()
 
     state_euler = euler_state(trim_state)
+    print(trim_state)
+    print(state_euler)
     # extract the states
     pn = state_euler.item(0)
     pe = state_euler.item(1)
@@ -41,21 +43,57 @@ def compute_tf_model(mav, trim_state, trim_input):
     delta_t = trim_input.item(3)
 
 
-
-    a_phi_1 = -0.5*MAV*mav._Va**2*MAV.S_wing*MAV.b*MAV.C_p_p*MAV.b/(2.*mav._Va)
+    # Transfer function delta_a --> phi
+    a_phi_1 = -0.5*MAV.rho*mav._Va**2*MAV.S_wing*MAV.b*MAV.C_p_p*MAV.b/(2.*mav._Va)
     a_phi_2 = 0.5*MAV.rho*mav._Va**2*MAV.S_wing*MAV.b*MAV.C_p_delta_a
     d_phi_1 = q*np.sin(phi)*np.tan(theta) + r*np.cos(phi)*np.tan(theta)
     d_dot_phi_1 = 0.0 #help
     d_phi_2 = MAV.gamma1*p*q - MAV.gamma2*q*r + \
-        0.5*MAV.rho*mav._Va**2*MAV.S_wing*MAV.b*(MAV.C_p_0+MAV.C_p_beta*beta-MAV.C_p_p*MAV.b*d_phi_1/(2.*Va)+MAV.C_p_r*MAV.b*r/(2.*Va)+MAV.C_p_delta_r*delta_r) + d_dot_phi_1
-    T_phi_delta_a = ctrl.tf([a_phi2*(delta_a+d_phi_2/a_phi_2)],[1 a_phi_2,0])
+        0.5*MAV.rho*mav._Va**2*MAV.S_wing*MAV.b*(MAV.C_p_0+MAV.C_p_beta*mav._beta-MAV.C_p_p*MAV.b*d_phi_1/(2.*mav._Va)+MAV.C_p_r*MAV.b*r/(2.*mav._Va)+MAV.C_p_delta_r*delta_r) + d_dot_phi_1
+    T_phi_delta_a = ctrl.tf([a_phi_2*(delta_a+d_phi_2/a_phi_2)],[1,a_phi_2,0])
+    print("T_phi_delta_a",T_phi_delta_a)
 
-    T_chi_phi = ctrl.tf([],[])
+    # Transfer function phi --> chi
+    phi = 0.0 # help
+    dx = np.tan(phi)-phi
+    T_chi_phi = ctrl.tf([MAV.gravity*(phi+dx)/mav._Vg],[1,0])
+    print("T_chi_phi",T_chi_phi)
+
+    # Transfer function delta_e --> theta
+
+    T_theta_delta_e = 0.0
+
+    # Transfer function theta --> h
+    T_h_theta = 0.0
+
+    # Transfer function Va --> h
+    T_h_Va = 0.0
+
+    # Transfer function delta_t --> Va
+    T_Va_delta_t = 0.0
+
+    # Transfer funciton theta --> Va
+    T_Va_theta = 0.0
+
+    # Transfer function delta_r --> beta
+    print("rudder = ",delta_r)
+    a_beta_1 = -MAV.rho*mav._Va*MAV.S_wing*MAV.C_Y_beta/(2.*MAV.mass)
+    a_beta_2 = MAV.rho*mav._Va*MAV.S_wing*MAV.C_Y_delta_r/(2.*MAV.mass)
+    d_beta = p*w-r*u + MAV.gravity*np.cos(theta)*np.sin(phi)+ \
+        MAV.rho*mav._Va**2*MAV.S_wing*(MAV.C_Y_0+MAV.C_Y_p*MAV.b*p/(2.*mav._Va)+MAV.C_Y_r*MAV.b*r/(2.*mav._Va)+MAV.C_Y_delta_a*delta_a)/(2.*MAV.mass)
+    T_beta_delta_r = ctrl.tf([(delta_r+d_beta)*a_beta_2],[1.0,a_beta_1])
+    print("T_beta_delta_r",T_beta_delta_r)
+
+
 
     return T_phi_delta_a, T_chi_phi, T_theta_delta_e, T_h_theta, T_h_Va, T_Va_delta_t, T_Va_theta, T_beta_delta_r
 
 def compute_ss_model(mav, trim_state, trim_input):
-     return A_lon, B_lon, A_lat, B_lat
+    A_lon = 0
+    B_lon = 0
+    A_lat = 0
+    B_lat = 0
+    return A_lon, B_lon, A_lat, B_lat
 
 def euler_state(x_quat):
     # convert state x with attitude represented by quaternion
@@ -67,7 +105,7 @@ def euler_state(x_quat):
     x_euler[7] = theta
     x_euler[8] = psi
     x_euler[9:12] = x_quat[10:13]
-     return x_euler
+    return x_euler
 
 def quaternion_state(x_euler):
     # convert state x_euler with attitude represented by Euler angles
