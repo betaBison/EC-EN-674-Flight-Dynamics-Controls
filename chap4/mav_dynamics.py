@@ -294,6 +294,7 @@ class mav_dynamics:
         a = MAV.rho*MAV.D_prop**5*MAV.C_Q0/(2.*pi)**2
         b = MAV.rho*MAV.D_prop**4*MAV.C_Q1*V_a/(2.*pi) + MAV.KQ**2/MAV.R_motor
         c = MAV.rho*MAV.D_prop**3*MAV.C_Q2*V_a**2 - MAV.KQ*MAV.V_max*delta_t/MAV.R_motor + MAV.KQ*MAV.i0
+        print("V_a=",V_a)
         result = (-b + sqrt(b**2 - 4.*a*c))/(2.*a)
         return result
 

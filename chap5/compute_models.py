@@ -1,7 +1,7 @@
 """
 compute_ss_model
     - Chapter 5 assignment for Beard & McLain, PUP, 2012
-    - Update history:  
+    - Update history:
         2/4/2019 - RWB
 """
 import sys
@@ -29,6 +29,12 @@ def euler_state(x_quat):
 def quaternion_state(x_euler):
     # convert state x_euler with attitude represented by Euler angles
     # to x_quat with attitude represented by quaternions
+    phi = x_euler[6]
+    theta = x_euler[7]
+    psi = x_euler[8]
+    e0, e1, e2, e3 = Euler2Quaternion(phi,theta,psi)
+    x_quat = x_euler.copy()
+
     return x_quat
 
 def f_euler(mav, x_euler, input):
