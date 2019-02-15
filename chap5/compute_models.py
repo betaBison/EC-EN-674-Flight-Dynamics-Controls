@@ -97,10 +97,106 @@ def compute_tf_model(mav, trim_state, trim_input):
     return T_phi_delta_a, T_chi_phi, T_theta_delta_e, T_h_theta, T_h_Va, T_Va_delta_t, T_Va_theta, T_beta_delta_r
 
 def compute_ss_model(mav, trim_state, trim_input):
-    A_lon = 0
-    B_lon = 0
-    A_lat = 0
-    B_lat = 0
+    mav._state = trim_state
+    mav._update_velocity_data()
+
+    state_euler = euler_state(trim_state)
+    print(trim_state)
+    print(state_euler)
+    # extract the states
+    pn = state_euler.item(0)
+    pe = state_euler.item(1)
+    pd = state_euler.item(2)
+    u = state_euler.item(3)
+    v = state_euler.item(4)
+    w = state_euler.item(5)
+    phi = state_euler.item(6)
+    theta = state_euler.item(7)
+    psi = state_euler.item(8)
+    p = state_euler.item(9)
+    q = state_euler.item(10)
+    r = state_euler.item(11)
+    #  inputs
+    delta_a = trim_input.item(0)
+    delta_e = trim_input.item(1)
+    delta_r = trim_input.item(2)
+    delta_t = trim_input.item(3)
+
+
+
+    beta_star = mav._beta
+    Va_star = mav._Va
+
+    u_star = u
+    v_star = v
+    w_star = w
+    phi_star = phi
+    theta_star = theta
+    p_star = p
+    q_star = q
+    r_star = r
+
+    delta_a_star = delta_a
+    delta_r_star = delta_r
+
+    Xu =
+    Xw =
+    Xq =
+    X_delta_e =
+    X_delta_t =
+    Zu =
+    
+
+    A_lon = np.array([[],
+                      [],
+                      [],
+                      [],
+                      []])
+    B_lon = np.array([[],
+                      [],
+                      [],
+                      [],
+                      []])
+
+    # QUESTION: m in Yv equation supposed to be mass?
+    Yv = MAV.rho*MAV.S_wing*MAV.b*v_star*(MAV.C_Y_p*p_star+MAV.C_Y_r*r_star)/(4.*MAV.mass*Va_star) \
+        + MAV.rho*MAV.S_wing*v_star*(MAV.C_Y_0+MAV.C_Y_beta*beta_star+MAV.C_Y_delta_a*delta_a_star+MAV.C_Y_delta_r*delta_r_star)/MAV.mass \
+        + MAV.rho*MAV.S_wing*MAV.C_Y_beta*np.sqrt(u_star**2+w_star**2)/(2.*MAV.mass)
+    # QUESTION: m in Yp equation supposed to be mass?
+    Yp = w_star + MAV.rho*Va_star*MAV.S_wing*MAV.b*MAV.C_Y_p/(4.*MAV.mass)
+    # QUESTION: m in Yr equation supposed to be mass?
+    Yr = -u_star + MAV.rho*Va_star*MAV.S_wing*MAV.b*MAV.C_Y_r/(4.*MAV.mass)
+    Y_delta_a = MAV.rho*Va_star**2*MAV.S_wing*MAV.C_Y_delta_a/(2.*MAV.mass)
+    Y_delta_r = MAV.rho*Va_star**2*MAV.S_wing*MAV.C_Y_delta_r/(2.*MAV.mass)
+    Lv = MAV.rho*MAV.S_wing*MAV.b**2*v_star*(MAV.C_p_p*p_star+MAV.C_p_r*r_star)/(4.*Va_star) \
+        + MAV.rho*MAV.S_wing*MAV.b*v_star*(MAV.C_p_0+MAV.C_p_beta*beta_star+MAV.C_p_delta_a*delta_a_star+MAV.C_p_delta_r*delta_r_star) \
+        + MAV.rho*MAV.S_wing*MAV.b*MAV.C_p_beta*np.sqrt(u_star**2+w_star**2)/(2.)
+    Lp = MAV.gamma1*q_star + MAV.rho*Va_star*MAV.S_wing*MAV.b**2*MAV.C_p_p/4.
+    Lr = -MAV.gamma2*q_star + MAV.rho*Va_star*MAV.S_wing*MAV.b**2*MAV.C_p_r/4.
+    L_delta_a = MAV.rho*Va_star**2*MAV.S_wing*MAV.b*MAV.C_p_delta_a/2.
+    L_delta_r = MAV.rho*Va_star**2*MAV.S_wing*MAV.b*MAV.C_p_delta_r/2.
+    Nv = MAV.rho*MAV.S_wing*MAV.b**2*v_star*(MAV.C_r_p*p_star+MAV.C_r_r*r_star)/(4.*Va_star) \
+        + MAV.rho*MAV.S_wing*MAV.b*v_star*(MAV.C_r_0+MAV.C_r_beta*beta_star+MAV.C_r_delta_a*delta_a_star+MAV.C_r_delta_r*delta_r_star) \
+        + MAV.rho*MAV.S_wing*MAV.b*MAV.C_r_beta*np.sqrt(u_star**2+w_star**2)/(2.)
+    Np = MAV.gamma7*q_star + MAV.rho*Va_star*MAV.S_wing*MAV.b**2*MAV.C_r_p/4.
+    Nr = -MAV.gamma1*q_star + MAV.rho*Va_star*MAV.S_wing*MAV.b**2*MAV.C_r_r/4.
+    N_delta_a = MAV.rho*Va_star**2*MAV.S_wing*MAV.b*MAV.C_r_delta_a/2.
+    N_delta_r = MAV.rho*Va_star**2*MAV.S_wing*MAV.b*MAV.C_r_delta_r/2.
+
+
+    A_lat = np.array([[Yv, Yp/(Va_star*np.cos(beta_star)), Yr/(Va_star*np.cos(beta_star)), MAV.gravity*np.cos(theta_star)*np.cos(phi_star)/(Va_star*np.cos(beta_star)),0.0],
+                      [Lv*Va_star*np.cos(beta_star), Lp, Lr, 0.0, 0.0],
+                      [Nv*Va_star*np.cos(beta_star),Np,Nr,0.0,0.0],
+                      [0.0, 1.0, np.cos(phi_star)*np.tan(theta_star),q_star*np.cos(phi_star)*np.tan(theta_star)-r_star*np.sin(phi_star)*np.tan(theta_star),0.0],
+                      [0.0, 0.0, np.cos(phi_star)/np.cos(theta_star),p_star*np.cos(phi_star)/np.cos(theta_star)-r_star*np.sin(phi_star)/np.cos(theta_star),0.0]])
+    print("A_lat",A_lat)
+    B_lat = np.array([[Y_delta_a/(Va_star*np.cos(beta_star)),Y_delta_r/(Va_star*np.cos(beta_star))],
+                      [L_delta_a,L_delta_r],
+                      [N_delta_a,N_delta_r],
+                      [0.0, 0.0],
+                      [0.0, 0.0]])
+    print("B_lat",B_lat)
+
     return A_lon, B_lon, A_lat, B_lat
 
 def euler_state(x_quat):
