@@ -139,24 +139,44 @@ def compute_ss_model(mav, trim_state, trim_input):
     delta_a_star = delta_a
     delta_r_star = delta_r
 
-    Xu =
-    Xw =
-    Xq =
-    X_delta_e =
-    X_delta_t =
-    Zu =
-    
+    Cx = -CD(mav._alpha)*np.cos(mav._alpha) + CL(mav._alpha)*np.sin(mav._alpha)
+    Cxq = -MAV.C_D_q*np.cos(mav._alpha) + MAV.C_L_q*np.sin(mav._alpha)
+    Cxde = -MAV.C_D_delta_e*np.cos(mav._alpha) + MAV.C_L_delta_e*np.sin(mav._alpha)
+    Cz = -CD(mav._alpha)*np.sin(mav._alpha) - CL(mav._alpha)*np.cos(mav._alpha)
+    Czq = -MAV.C_D_q*np.sin(mav._alpha) - MAV.C_L_q*np.cos(mav._alpha)
+    Czde = -MAV.C_D_delta_e*np.sin(mav._alpha) - MAV.C_L_delta_e*np.cos(mav._alpha)
 
-    A_lon = np.array([[],
-                      [],
-                      [],
-                      [],
-                      []])
-    B_lon = np.array([[],
-                      [],
-                      [],
-                      [],
-                      []])
+    Cx0 = Cx
+
+    Xu = u_star*MAV.rho*MAV.S_wing*(Cx0)
+    Xw = 0.0
+    Xq = 0.0
+    X_delta_e = 0.0
+    X_delta_t = 0.0
+    Zu = 0.0
+    Zw = 0.0
+    Zq = 0.0
+    Z_delta_e = 0.0
+    Mu = 0.0
+    Mw = 0.0
+    Mq = 0.0
+    M_delta_e = 0.0
+
+
+    A_lon = np.array([[Xu, Xw*Va_star*np.cos(mav._alpha),Xq,-MAV.gravity*np.cos(theta_star),0.0],
+                      [Zu/(Va_star*np.cos(mav._alpha)),Zw,Zq/(Va_star*np.cos(mav._alpha)),-MAV.gravity*np.sin(theta_star)/(Va_star*np.cos(mav._alpha)),0.0],
+                      [Mu,Mw*Va_star,np.cos(mav._alpha),Mq,0.0,0.0],
+                      [0.0,0.0,1.0,0.0,0.0],
+                      [np.sin(theta_star),-Va_star*np.cos(theta_star)*np.cos(mav._alpha),0.0,u_star*np.cos(theta_star)+w_star*np.sin(theta_star),0.0]])
+    B_lon = np.array([[X_delta_e,X_delta_t],
+                      [Z_delta_e/(Va_star*np.cos(mav._alpha)),0.0],
+                      [M_delta_e,0.0],
+                      [0.0,0.0],
+                      [0.0,0.0]])
+
+
+    #lon_eig = np.linalg.eig(A_lon)
+    #print(lon_eig)
 
     # QUESTION: m in Yv equation supposed to be mass?
     Yv = MAV.rho*MAV.S_wing*MAV.b*v_star*(MAV.C_Y_p*p_star+MAV.C_Y_r*r_star)/(4.*MAV.mass*Va_star) \
@@ -197,7 +217,33 @@ def compute_ss_model(mav, trim_state, trim_input):
                       [0.0, 0.0]])
     print("B_lat",B_lat)
 
+    lat_eig = np.linalg.eig(A_lat)
+    print(lat_eig)
+
     return A_lon, B_lon, A_lat, B_lat
+
+def CD(alpha):
+    '''
+    UAV book equation 4.11
+    '''
+    result = MAV.C_D_p + ((MAV.C_L_0+alpha*MAV.C_L_alpha)**2)/(np.pi*MAV.e*MAV.AR)
+    #result = (1-calcSigma(alpha))*(MAV.C_D_0 + MAV.C_D_alpha*alpha)+calcSigma(alpha)*(2.0*np.sign(alpha)*sin(alpha)**2*cos(alpha))
+    return result
+
+def CL(alpha):
+    '''
+    This is a linear coefficient model that is not valid over a wide
+    range of angles of attack. UAV Book equation 4.13
+    '''
+    result = (1-calcSigma(alpha))*(MAV.C_L_0 + MAV.C_L_alpha*alpha)+calcSigma(alpha)*(2.0*np.sign(alpha)*np.sin(alpha)**2*np.cos(alpha))
+    return result
+
+def calcSigma(alpha):
+    # blending function according to ch 4 UAV book slides
+    nom = 1.0 + np.exp(-MAV.M*(alpha-MAV.alpha0))+np.exp(MAV.M*(alpha+MAV.alpha0))
+    den = (1.0 + np.exp(-MAV.M*(alpha-MAV.alpha0)))*(1+np.exp(MAV.M*(alpha+MAV.alpha0)))
+    result = nom/den
+    return result
 
 def euler_state(x_quat):
     # convert state x with attitude represented by quaternion
