@@ -20,7 +20,7 @@ def compute_trim(mav, Va, gamma):
     # define initial state and input
     state0 = np.array([[0.0],  # (0)
                        [0.0],   # (1)
-                       [0.0],   # (2)
+                       [-100.0],   # (2)
                        [20.0],    # u0
                        [0.0],    # v0
                        [0.0],    # w0

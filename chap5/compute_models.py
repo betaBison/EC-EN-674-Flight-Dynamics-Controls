@@ -46,45 +46,53 @@ def compute_tf_model(mav, trim_state, trim_input):
     # Transfer function delta_a --> phi
     a_phi_1 = -0.5*MAV.rho*mav._Va**2*MAV.S_wing*MAV.b*MAV.C_p_p*MAV.b/(2.*mav._Va)
     a_phi_2 = 0.5*MAV.rho*mav._Va**2*MAV.S_wing*MAV.b*MAV.C_p_delta_a
-    d_phi_1 = q*np.sin(phi)*np.tan(theta) + r*np.cos(phi)*np.tan(theta)
-    d_dot_phi_1 = 0.0 #help
-    d_phi_2 = MAV.gamma1*p*q - MAV.gamma2*q*r + \
-        0.5*MAV.rho*mav._Va**2*MAV.S_wing*MAV.b*(MAV.C_p_0+MAV.C_p_beta*mav._beta-MAV.C_p_p*MAV.b*d_phi_1/(2.*mav._Va)+MAV.C_p_r*MAV.b*r/(2.*mav._Va)+MAV.C_p_delta_r*delta_r) + d_dot_phi_1
-    T_phi_delta_a = ctrl.tf([a_phi_2*(delta_a+d_phi_2/a_phi_2)],[1,a_phi_2,0])
+    #d_phi_1 = q*np.sin(phi)*np.tan(theta) + r*np.cos(phi)*np.tan(theta)
+    #d_dot_phi_1 = 0.0 #help
+    #d_phi_2 = MAV.gamma1*p*q - MAV.gamma2*q*r + \
+    #    0.5*MAV.rho*mav._Va**2*MAV.S_wing*MAV.b*(MAV.C_p_0+MAV.C_p_beta*mav._beta-MAV.C_p_p*MAV.b*d_phi_1/(2.*mav._Va)+MAV.C_p_r*MAV.b*r/(2.*mav._Va)+MAV.C_p_delta_r*delta_r) + d_dot_phi_1
+    T_phi_delta_a = ctrl.tf([a_phi_2],[1,a_phi_1,0])
     print("T_phi_delta_a",T_phi_delta_a)
 
     # Transfer function phi --> chi
-    phi = 0.0 # help
-    dx = np.tan(phi)-phi
-    T_chi_phi = ctrl.tf([MAV.gravity*(phi+dx)/mav._Vg],[1,0])
+    #dx = np.tan(phi)-phi
+    T_chi_phi = ctrl.tf([MAV.gravity/mav._Vg],[1,0])
     print("T_chi_phi",T_chi_phi)
 
-    # Transfer function delta_e --> theta
 
-    T_theta_delta_e = 0.0
+    # Transfer function delta_e --> theta
+    a_theta_1 = -MAV.rho*mav._Va**2*MAV.c*MAV.S_wing*MAV.C_m_q*MAV.c/(2.*MAV.Jy*2.*mav._Va)
+    a_theta_2 = -MAV.rho*mav._Va**2*MAV.c*MAV.S_wing*MAV.C_m_alpha/(2.*MAV.Jy)
+    a_theta_3 = MAV.rho*mav._Va**2*MAV.c*MAV.S_wing*MAV.C_m_delta_e/(2.*MAV.Jy)
+    #d_theta_2 = MAV.gamma6*(r**2-p**2) + MAV.gamma5*p*r + MAV.rho*mav._Va**2*MAV.S_wing*MAV.c*(MAV.C_m_0-MAV.C_m_alpha*mav.gamma-MAV.C_m_q*MAV.c*a_theta_1)/(2.*Va)+MAV.C_m_delta_e*delta_e)/(2.*MAV.Jy)
+    T_theta_delta_e = ctrl.tf([a_theta_3],[1,a_theta_1,a_theta_2])
+    print("T_theta_delta_e",T_theta_delta_e )
 
     # Transfer function theta --> h
-    T_h_theta = 0.0
+    T_h_theta = ctrl.tf([mav._Va],[1,0])
+    print("T_h_theta",T_h_theta)
 
     # Transfer function Va --> h
-    T_h_Va = 0.0
+    T_h_Va = ctrl.tf([theta],[1,0])
+    print("T_h_Va",T_h_Va)
 
     # Transfer function delta_t --> Va
-    T_Va_delta_t = 0.0
+    a_v_1 = MAV.rho*mav._Va*MAV.S_wing*(MAV.C_D_0 + MAV.C_D_alpha*mav._alpha+MAV.C_D_delta_e*delta_e)/MAV.mass + MAV.rho*MAV.S_prop*MAV.C_prop*mav._Va/MAV.mass
+    a_v_2 = MAV.rho*MAV.S_prop*MAV.C_prop*MAV.k_motor**2*delta_t/MAV.mass
+    T_Va_delta_t = ctrl.tf([a_v_2],[1.0,a_v_1])
+    print("T_Va_delta_t",T_Va_delta_t)
 
     # Transfer funciton theta --> Va
-    T_Va_theta = 0.0
+    a_v_3 = MAV.gravity
+    T_Va_theta = ctrl.tf([-a_v_3],[1.0,a_v_1])
+    print("T_Va_theta",T_Va_theta)
 
     # Transfer function delta_r --> beta
-    print("rudder = ",delta_r)
     a_beta_1 = -MAV.rho*mav._Va*MAV.S_wing*MAV.C_Y_beta/(2.*MAV.mass)
     a_beta_2 = MAV.rho*mav._Va*MAV.S_wing*MAV.C_Y_delta_r/(2.*MAV.mass)
-    d_beta = p*w-r*u + MAV.gravity*np.cos(theta)*np.sin(phi)+ \
-        MAV.rho*mav._Va**2*MAV.S_wing*(MAV.C_Y_0+MAV.C_Y_p*MAV.b*p/(2.*mav._Va)+MAV.C_Y_r*MAV.b*r/(2.*mav._Va)+MAV.C_Y_delta_a*delta_a)/(2.*MAV.mass)
-    T_beta_delta_r = ctrl.tf([(delta_r+d_beta)*a_beta_2],[1.0,a_beta_1])
+    #d_beta = p*w-r*u + MAV.gravity*np.cos(theta)*np.sin(phi)+ \
+    #    MAV.rho*mav._Va**2*MAV.S_wing*(MAV.C_Y_0+MAV.C_Y_p*MAV.b*p/(2.*mav._Va)+MAV.C_Y_r*MAV.b*r/(2.*mav._Va)+MAV.C_Y_delta_a*delta_a)/(2.*MAV.mass)
+    T_beta_delta_r = ctrl.tf([a_beta_2],[1.0,a_beta_1])
     print("T_beta_delta_r",T_beta_delta_r)
-
-
 
     return T_phi_delta_a, T_chi_phi, T_theta_delta_e, T_h_theta, T_h_Va, T_Va_delta_t, T_Va_theta, T_beta_delta_r
 
