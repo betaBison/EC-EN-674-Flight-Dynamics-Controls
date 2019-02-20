@@ -18,9 +18,9 @@ def compute_trim(mav, Va, gamma):
     psi = 0.0
     e0,e1,e2,e3 = Euler2Quaternion(phi, theta, psi)
     # define initial state and input
-    state0 = np.array([[0.0],  # (0)
-                       [0.0],   # (1)
-                       [-100.0],   # (2)
+    state0 = np.array([[mav._state.item(0)], #pn
+                       [mav._state.item(1)], #pe
+                       [mav._state.item(2)], #pd
                        [Va],    # u0
                        [0.0],    # v0
                        [0.0],    # w0
