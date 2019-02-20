@@ -73,7 +73,7 @@ def calcX_dot_star(Va,gamma):
     Va_star = Va
     x_dot_star = np.array([[0.0],  # pn_dot don't care
                            [0.0],   # pe_dot don't care
-                           [Va_star*np.sin(gamma_star)], # h_dot
+                           [-Va_star*np.sin(gamma_star)], # h_dot
                            [0.0],    # u_dot
                            [0.0],    # v_dot
                            [0.0],    # w_dot
