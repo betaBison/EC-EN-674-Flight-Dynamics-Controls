@@ -54,6 +54,7 @@ class mav_dynamics:
         self._beta = 0
         # initialize true_state message
         self.msg_true_state = msg_state()
+        self._update_msg_true_state()
 
     ###################################
     # public functions
@@ -73,7 +74,7 @@ class mav_dynamics:
         k2 = self._derivatives(self._state + time_step/2.*k1, forces_moments)
         k3 = self._derivatives(self._state + time_step/2.*k2, forces_moments)
         k4 = self._derivatives(self._state + time_step*k3, forces_moments)
-        self._state += time_step/6 * (k1 + 2*k2 + 2*k3 + k4)
+        self._state += time_step/6. * (k1 + 2.*k2 + 2.*k3 + k4)
 
         # normalize the quaternion
         e0 = self._state.item(6)
@@ -99,16 +100,16 @@ class mav_dynamics:
         for the dynamics xdot = f(x, u), returns f(x, u)
         """
         # extract the states
-        pn = state.item(0)
-        pe = state.item(1)
-        pd = state.item(2)
         u = state.item(3)
         v = state.item(4)
         w = state.item(5)
+
         e0 = state.item(6)
         e1 = state.item(7)
         e2 = state.item(8)
         e3 = state.item(9)
+
+
         p = state.item(10)
         q = state.item(11)
         r = state.item(12)
@@ -155,6 +156,7 @@ class mav_dynamics:
         e3 = self._state.item(9)
         #print("EEEES=",e0,e1,e2,e3)
 
+
         phi, theta, psi = Quaternion2Euler(np.array([e0,e1,e2,e3]))
         #print("angles=",phi,theta,psi)
         Rv2b = RotationVehicle2Body(phi, theta, psi)
@@ -168,13 +170,17 @@ class mav_dynamics:
         ur = self._state[3] - uw
         vr = self._state[4] - vw
         wr = self._state[5] - ww
+
+
         self._Va = sqrt(ur**2+vr**2+wr**2)
         #print("update_velocities =",self._Va)
         # compute angle of attack
         self._alpha = atan2(wr,ur)
         # compute sideslip angle
-        self._beta = asin(vr/sqrt(ur**2+vr**2+wr**2))
+        self._beta = np.arcsin(vr/self._Va)
         # Vg, chi, gamma
+
+
         Rb2v = RotationBody2Vehicle(phi, theta, psi)
 
         Vg_result = np.matmul(Rb2v,self._state[3:6])
@@ -304,7 +310,10 @@ class mav_dynamics:
         b = MAV.rho*MAV.D_prop**4*MAV.C_Q1*V_a/(2.*pi) + MAV.KQ**2/MAV.R_motor
         c = MAV.rho*MAV.D_prop**3*MAV.C_Q2*V_a**2 - MAV.KQ*MAV.V_max*delta_t/MAV.R_motor + MAV.KQ*MAV.i0
         #print("V_a=",V_a)
-        result = (-b + sqrt(b**2 - 4.*a*c))/(2.*a)
+        if (b**2-4*a*c) > 0:
+            result = (-b + sqrt(b**2 - 4.*a*c))/(2.*a)
+        else:
+            result = -b/(2*a)
         return result
 
     def propTorque(self,delta_t,V_a):
