@@ -21,7 +21,7 @@ def compute_trim(mav, Va, gamma):
     state0 = np.array([[0.0],  # (0)
                        [0.0],   # (1)
                        [-100.0],   # (2)
-                       [20.0],    # u0
+                       [Va],    # u0
                        [0.0],    # v0
                        [0.0],    # w0
                        [e0],    # e0
@@ -32,7 +32,7 @@ def compute_trim(mav, Va, gamma):
                        [0.0],    # q0
                        [0.0]])   # r0
     delta_a = 0.0
-    delta_e = 0.1
+    delta_e = 0.0
     delta_r = 0.0
     delta_t = 0.5
     delta0 = np.array([[delta_a, delta_e, delta_r, delta_t]]).T
@@ -88,8 +88,9 @@ def calcX_dot_star(Va,gamma):
 
 # objective function to be minimized
 def trim_objective(x, mav, Va, gamma):
-    print("x=",x)
+    #print("x=",x)
     x_star = x[0:13]
+    '''
     e0 = x_star[6]
     e1 = x_star[7]
     e2 = x_star[8]
@@ -103,15 +104,14 @@ def trim_objective(x, mav, Va, gamma):
     x_star[7] = e1
     x_star[8] = e2
     x_star[9] = e3
+    '''
     delta_star = x[13:17]
     mav._state = x_star
     mav._update_velocity_data()
-    Va_star = Va
-    gamma_star = gamma
-    x_dot_star = calcX_dot_star(Va_star,gamma_star)
-    print("Va in objective",Va)
-    print("Va in state=",mav._Va)
-    print("delta star",delta_star)
+    x_dot_star = calcX_dot_star(Va,gamma)
+    #print("Va in objective",Va)
+    #print("Va in state=",mav._Va)
+    #print("delta star",delta_star)
     force_moments = mav._forces_moments(delta_star)
     f_result = mav._derivatives(x_star,force_moments)
 

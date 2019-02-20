@@ -21,8 +21,8 @@ def compute_tf_model(mav, trim_state, trim_input):
     mav._update_velocity_data()
 
     state_euler = euler_state(trim_state)
-    print(trim_state)
-    print(state_euler)
+    #print(trim_state)
+    #print(state_euler)
     # extract the states
     pn = state_euler.item(0)
     pe = state_euler.item(1)
@@ -217,8 +217,8 @@ def compute_ss_model(mav, trim_state, trim_input):
                       [0.0, 0.0]])
     print("B_lat",B_lat)
 
-    lat_eig = np.linalg.eig(A_lat)
-    print(lat_eig)
+    #lat_eig = np.linalg.eig(A_lat)
+    #print(lat_eig)
 
     return A_lon, B_lon, A_lat, B_lat
 
