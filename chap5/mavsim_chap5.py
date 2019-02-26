@@ -29,6 +29,7 @@ if VIDEO == True:
                          bounding_box=(0, 0, 1000, 1000),
                          output_rate=SIM.ts_video)
 
+
 # initialize elements of the architecture
 wind = wind_simulation(SIM.ts_simulation)
 mav = mav_dynamics(SIM.ts_simulation)
@@ -37,6 +38,31 @@ mav = mav_dynamics(SIM.ts_simulation)
 Va = 25.
 gamma = 10.*np.pi/180.
 trim_state, trim_input = compute_trim(mav, Va, gamma)
+
+# OUTPUT TO FILE
+filename = "../chap5/trim_results.py"
+file = open(filename,'w')
+file.write("import numpy as np\n\n")
+# trim state
+file.write("trim_state = np.array([")
+trim_state.tofile(file,sep=",")
+file.write("])\n\n")
+# trim inputs
+file.write("trim_input = np.array([")
+trim_input.tofile(file,sep=",")
+file.write("])\n\n")
+# Va
+file.write("Va = ")
+file.write(str(Va))
+file.write('\n\n')
+# gamma
+file.write("gamma = ")
+file.write(str(gamma))
+file.write('\n\n')
+# close file
+file.close()
+
+
 #print("trim_state=",trim_state)
 #print("trim_input=",trim_input)
 mav._state = trim_state  # set the initial state of the mav to the trim state
