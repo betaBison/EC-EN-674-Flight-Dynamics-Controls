@@ -23,7 +23,13 @@ class pid_control:
         self.a2 = 2.0 / (2.0 * sigma + Ts)
 
     def update(self, y_ref, y, reset_flag=False):
+        error = y_ref - y
+        # integrate error
+        self.integrator = self.integrator + (self.Ts/2)*(error+self.error_delay_1)
+
+        u_unsat = self.kp*error + self.ki*self.integrator + self.kd*self.error_dot
         return u_sat
+
 
     def update_with_rate(self, y_ref, y, ydot, reset_flag=False):
         return u_sat
@@ -48,6 +54,14 @@ class pi_control:
         self.error_delay_1 = 0.0
 
     def update(self, y_ref, y):
+        error = y_ref - y
+        # integrate error
+        self.integrator = self.integrator + (self.Ts/2)*(error+self.error_delay_1)
+        # calculate unsaturated control
+        u_unsat = self.kp*error + self.ki*self.integrator
+        u_sat = self._saturate(u_unsat)
+        # update the delay error
+        self.error_delay_1 = error
         return u_sat
 
     def _saturate(self, u):
@@ -69,6 +83,9 @@ class pd_control_with_rate:
         self.limit = limit
 
     def update(self, y_ref, y, ydot):
+        error = y_ref - y
+        u_unsat = error*self.kp - ydot*self.kd
+        u_sat = self._saturate(u_unsat)
         return u_sat
 
     def _saturate(self, u):

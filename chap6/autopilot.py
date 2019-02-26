@@ -8,7 +8,7 @@ import sys
 import numpy as np
 sys.path.append('..')
 import parameters.control_parameters as AP
-from chap6.pid_control import pid_control, pi_control, pd_control_with_rate
+from chap6.pid_control import pi_control, pd_control_with_rate
 from message_types.msg_state import msg_state
 
 
@@ -24,11 +24,13 @@ class autopilot:
                         ki=AP.course_ki,
                         Ts=ts_control,
                         limit=np.radians(30))
+        '''
         self.sideslip_from_rudder = pi_control(
                         kp=AP.sideslip_kp,
                         ki=AP.sideslip_ki,
                         Ts=ts_control,
                         limit=np.radians(45))
+        '''
         self.yaw_damper = transfer_function(
                         num=np.array([[AP.yaw_damper_kp, 0]]),
                         den=np.array([[1, 1/AP.yaw_damper_tau_r]]),
@@ -54,15 +56,16 @@ class autopilot:
     def update(self, cmd, state):
 
         # lateral autopilot
-        phi_c =
-        delta_a =
-        delta_r =
+        phi_c = self.course_from_roll(cmd.course_command,state.chi)
+        delta_a = self.roll_from_aileron(phi_c,state.phi)
+        delta_r = self.yaw_damper.update(state.r)
 
         # longitudinal autopilot
-        h_c =
-        theta_c =
-        delta_e =
-        delta_t =
+        h_c = cmd.altitude_command
+        # maybe saturate altitude command
+        theta_c = self.altitude_from_pitch.update(h_c,state.h)
+        delta_e = self.pitch_from_elevator.update(theta_c,state.theta)
+        delta_t = self.airspeed_from_throttle.update(cmd.airspeed_command,state._Va)
 
         # construct output and commanded states
         delta = np.array([[delta_e], [delta_a], [delta_r], [delta_t]])
