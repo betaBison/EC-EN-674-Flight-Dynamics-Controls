@@ -36,7 +36,7 @@ mav = mav_dynamics(SIM.ts_simulation)
 
 # use compute_trim function to compute trim state and trim input
 Va = 25.
-gamma = 10.*np.pi/180.
+gamma = 0.*np.pi/180.
 trim_state, trim_input = compute_trim(mav, Va, gamma)
 
 # OUTPUT TO FILE
@@ -58,6 +58,14 @@ file.write('\n\n')
 # gamma
 file.write("gamma = ")
 file.write(str(gamma))
+file.write('\n\n')
+# gamma
+file.write("Vg = ")
+file.write(str(mav._Vg))
+file.write('\n\n')
+# alpha
+file.write("alpha = ")
+file.write(str(mav._alpha))
 file.write('\n\n')
 # close file
 file.close()
