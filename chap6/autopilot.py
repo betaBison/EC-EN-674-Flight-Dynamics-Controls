@@ -10,6 +10,7 @@ sys.path.append('..')
 import parameters.control_parameters as AP
 from chap6.pid_control import pi_control, pd_control_with_rate
 from message_types.msg_state import msg_state
+from tools.transfer_function import transfer_function
 
 
 class autopilot:
@@ -56,16 +57,16 @@ class autopilot:
     def update(self, cmd, state):
 
         # lateral autopilot
-        phi_c = self.course_from_roll(cmd.course_command,state.chi)
-        delta_a = self.roll_from_aileron(phi_c,state.phi)
+        phi_c = self.course_from_roll.update(cmd.course_command,state.chi)
+        delta_a = self.roll_from_aileron.update(phi_c,state.phi,state.p)
         delta_r = self.yaw_damper.update(state.r)
 
         # longitudinal autopilot
         h_c = cmd.altitude_command
         # maybe saturate altitude command
         theta_c = self.altitude_from_pitch.update(h_c,state.h)
-        delta_e = self.pitch_from_elevator.update(theta_c,state.theta)
-        delta_t = self.airspeed_from_throttle.update(cmd.airspeed_command,state._Va)
+        delta_e = self.pitch_from_elevator.update(theta_c,state.theta,state.q)
+        delta_t = self.airspeed_from_throttle.update(cmd.airspeed_command,state.Va)
 
         # construct output and commanded states
         delta = np.array([[delta_e], [delta_a], [delta_r], [delta_t]])
