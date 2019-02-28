@@ -37,8 +37,8 @@ ctrl = autopilot(SIM.ts_simulation)
 from message_types.msg_autopilot import msg_autopilot
 commands = msg_autopilot()
 Va_command = signals(dc_offset=25.0, amplitude=3.0, start_time=2.0, frequency = 0.01)
-h_command = signals(dc_offset=100.0, amplitude=10.0, start_time=0.0, frequency = 0.02)
-chi_command = signals(dc_offset=np.radians(0.0), amplitude=np.radians(45), start_time=5.0, frequency = 0.015)
+h_command = signals(dc_offset=100.0, amplitude=50.0, start_time=0.0, frequency = 0.02)
+chi_command = signals(dc_offset=np.radians(30.0), amplitude=np.radians(45), start_time=5.0, frequency = 0.015)
 
 # initialize the simulation time
 sim_time = SIM.start_time

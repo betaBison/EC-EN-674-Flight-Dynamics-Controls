@@ -57,16 +57,20 @@ class autopilot:
     def update(self, cmd, state):
 
         # lateral autopilot
-        phi_c = self.course_from_roll.update(cmd.course_command,state.chi)
+        updated_course_command = self.chooseChiCommand(cmd.course_command,state.chi)
+        phi_c = self.course_from_roll.update(updated_course_command,state.chi)
         delta_a = self.roll_from_aileron.update(phi_c,state.phi,state.p)
         delta_r = self.yaw_damper.update(state.r)
 
         # longitudinal autopilot
         h_c = cmd.altitude_command
-        # maybe saturate altitude command
+        # altitude limits
+        h_c = self.saturate(h_c,30.0,200.0)
         theta_c = self.altitude_from_pitch.update(h_c,state.h)
         delta_e = self.pitch_from_elevator.update(theta_c,state.theta,state.q)
         delta_t = self.airspeed_from_throttle.update(cmd.airspeed_command,state.Va)
+        # limit throttle to positive values
+        delta_t = self.saturate(delta_t,0.0,1.0)
 
         # construct output and commanded states
         delta = np.array([[delta_a], [delta_e], [delta_r], [delta_t]])
@@ -85,3 +89,12 @@ class autopilot:
         else:
             output = input
         return output
+
+    def chooseChiCommand(self,command,chi):
+        if command > chi:
+            while abs(command-chi) > 180:
+                command -= 180
+        elif command < chi:
+            while abs(command-chi) > 180:
+                command += 180
+        return command
