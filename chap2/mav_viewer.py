@@ -9,6 +9,8 @@ from stl import mesh as mesh_mod
 import pyqtgraph as pg
 import pyqtgraph.opengl as gl
 import pyqtgraph.Vector as Vector
+from PyQt5 import QtWidgets
+import sys
 
 class mav_viewer():
     def __init__(self):
@@ -17,7 +19,9 @@ class mav_viewer():
         self.app = pg.QtGui.QApplication([])  # initialize QT
         self.window = gl.GLViewWidget()  # initialize the view object
         self.window.setWindowTitle('EC EN 674: Flight Dynamics & Controls Design Project')
-        self.window.showMaximized()
+        #self.window.showMaximized()
+        sg = QtWidgets.QDesktopWidget().availableGeometry()
+        self.window.setGeometry(sg.width()/2.,0,sg.width()/2.,sg.height())
         #self.window.setGeometry(0, 0, 1000, 1000)  # args: upper_left_x, upper_right_y, width, height
         grid = gl.GLGridItem() # make a grid to represent the ground
         grid.scale(20, 20, 5) # set the size of the grid (distance between each line)

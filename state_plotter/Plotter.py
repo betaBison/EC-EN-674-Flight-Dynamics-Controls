@@ -10,6 +10,7 @@ from state_plotter.state_plotbox import StatePlotbox
 from state_plotter.state_plot import StatePlot
 from state_plotter.state_data import StateData
 from pdb import set_trace
+from PyQt5 import QtWidgets
 
 # Enable antialiasing for prettier plots
 pg.setConfigOptions(antialias=True)
@@ -50,6 +51,8 @@ class Plotter:
         self.window = pg.GraphicsWindow(title="States")
         self.window.resize(*self.default_window_size)
         self.window.setBackground(self.background_color)
+        sg = QtWidgets.QDesktopWidget().availableGeometry()
+        self.window.setGeometry(0,0,sg.width()/2.,sg.height())
         self.old_windows = []
         self.row_plot_count = 0
 
