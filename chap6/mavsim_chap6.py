@@ -16,7 +16,7 @@ from chap4.mav_dynamics import mav_dynamics
 from chap4.wind_simulation import wind_simulation
 from chap6.autopilot import autopilot
 from tools.signals import signals
-
+import chap5.trim_results as TR
 
 # initialize the visualization
 VIDEO = False  # True==write video, False==don't write video
@@ -38,10 +38,11 @@ from message_types.msg_autopilot import msg_autopilot
 commands = msg_autopilot()
 Va_command = signals(dc_offset=25.0, amplitude=3.0, start_time=2.0, frequency = 0.01)
 h_command = signals(dc_offset=100.0, amplitude=10.0, start_time=0.0, frequency = 0.02)
-chi_command = signals(dc_offset=np.radians(180), amplitude=np.radians(45), start_time=5.0, frequency = 0.015)
+chi_command = signals(dc_offset=np.radians(0.0), amplitude=np.radians(45), start_time=5.0, frequency = 0.015)
 
 # initialize the simulation time
 sim_time = SIM.start_time
+mav.state = TR.trim_state
 
 # main simulation loop
 print("Press Command-Q to exit...")
@@ -50,14 +51,17 @@ while sim_time < SIM.end_time:
     #-------controller-------------
     estimated_state = mav.msg_true_state  # uses true states in the control
     commands.airspeed_command = Va_command.square(sim_time)
-    commands.course_command = 0.0
-    #commands.course_command = chi_command.square(sim_time)
-    commands.altitude_command = P.pd0
-    #commands.altitude_command = h_command.square(sim_time)
+    #commands.course_command = 0.0
+    commands.course_command = chi_command.square(sim_time)
+    #commands.altitude_command = -P.pd0
+    commands.altitude_command = h_command.square(sim_time)
     delta, commanded_state = ctrl.update(commands, estimated_state)
 
     #-------physical system-------------
-    current_wind = wind.update()  # get the new wind vector
+    #current_wind = wind.update()  # get the new wind vector
+    current_wind = np.zeros((6,1))
+    #delta = np.array([delta.item(0),TR.trim_input.item(1),TR.trim_input.item(2),delta.item(3)])
+
     mav.update_state(delta, current_wind)  # propagate the MAV dynamics
 
     #-------update viewer-------------

@@ -69,7 +69,7 @@ class autopilot:
         delta_t = self.airspeed_from_throttle.update(cmd.airspeed_command,state.Va)
 
         # construct output and commanded states
-        delta = np.array([[delta_e], [delta_a], [delta_r], [delta_t]])
+        delta = np.array([[delta_a], [delta_e], [delta_r], [delta_t]])
         self.commanded_state.h = cmd.altitude_command
         self.commanded_state.Va = cmd.airspeed_command
         self.commanded_state.phi = phi_c
