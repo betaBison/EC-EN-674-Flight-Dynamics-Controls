@@ -51,7 +51,7 @@ while sim_time < SIM.end_time:
     commands.altitude_command = h_command.square(sim_time)
 
     #-------controller-------------
-    estimated_state = mav.true_state  # uses true states in the control
+    estimated_state = mav.msg_true_state  # uses true states in the control
     delta, commanded_state = ctrl.update(commands, estimated_state)
 
     #-------physical system-------------
@@ -60,8 +60,8 @@ while sim_time < SIM.end_time:
     mav.update_sensors()  # update the sensors
 
     #-------update viewer-------------
-    mav_view.update(mav.true_state)  # plot body of MAV
-    data_view.update(mav.true_state, # true states
+    mav_view.update(mav.msg_true_state)  # plot body of MAV
+    data_view.update(mav.msg_true_state, # true states
                      estimated_state, # estimated states
                      commanded_state, # commanded states
                      SIM.ts_simulation)
@@ -71,7 +71,3 @@ while sim_time < SIM.end_time:
     sim_time += SIM.ts_simulation
 
 if VIDEO == True: video.close()
-
-
-
-
