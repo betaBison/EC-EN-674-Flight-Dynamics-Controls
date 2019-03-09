@@ -14,7 +14,7 @@ from chap3.data_viewer import data_viewer
 from chap4.wind_simulation import wind_simulation
 from chap6.autopilot import autopilot
 from chap7.mav_dynamics import mav_dynamics
-from chap8.observer import observer
+from chap8.observer_lpf import observer
 from tools.signals import signals
 
 # initialize the visualization
@@ -53,18 +53,20 @@ while sim_time < SIM.end_time:
     commands.altitude_command = h_command.square(sim_time)
 
     #-------controller-------------
-    measurements = mav.sensors()  # get sensor measurements
+    measurements = mav.sensors  # get sensor measurements
     estimated_state = obsv.update(measurements)  # estimate states from measurements
     delta, commanded_state = ctrl.update(commands, estimated_state)
 
     #-------physical system-------------
     #current_wind = wind.update()  # get the new wind vector
     current_wind = np.zeros((6,1))
-    mav.update(delta, current_wind)  # propagate the MAV dynamics
+    print(delta)
+    mav.update_state(delta, current_wind)  # propagate the MAV dynamics
+    mav.update_sensors()
 
     #-------update viewer-------------
-    mav_view.update(mav.true_state)  # plot body of MAV
-    data_view.update(mav.true_state, # true states
+    mav_view.update(mav.msg_true_state)  # plot body of MAV
+    data_view.update(mav.msg_true_state, # true states
                      estimated_state, # estimated states
                      commanded_state, # commanded states
                      SIM.ts_simulation)

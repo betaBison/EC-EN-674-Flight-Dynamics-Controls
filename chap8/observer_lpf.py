@@ -11,7 +11,7 @@ import parameters.control_parameters as CTRL
 import parameters.aerosonde_parameters as P
 import parameters.simulation_parameters as SIM
 import parameters.sensor_parameters as SENSOR
-from tools.tools import Euler2Rotation, jacobian
+from tools.tools import jacobian #,Euler2Rotation
 
 from message_types.msg_state import msg_state
 
@@ -23,9 +23,9 @@ class observer:
         self.lpf_gyro_x = alpha_filter(alpha=0.5)
         self.lpf_gyro_y = alpha_filter(alpha=0.5)
         self.lpf_gyro_z = alpha_filter(alpha=0.5)
-        self.lpf_accel_x = alpha_filter(alpha=0.5)
-        self.lpf_accel_y = alpha_filter(alpha=0.5)
-        self.lpf_accel_z = alpha_filter(alpha=0.5)
+        self.lpf_accel_x = alpha_filter(alpha=0.9)
+        self.lpf_accel_y = alpha_filter(alpha=0.9)
+        self.lpf_accel_z = alpha_filter(alpha=0.9)
         # use alpha filters to low pass filter static and differential pressure
         self.lpf_static = alpha_filter(alpha=0.9)
         self.lpf_diff = alpha_filter(alpha=0.5)
@@ -34,15 +34,6 @@ class observer:
         self.lpf_gps_n = alpha_filter(alpha = 0.5)
         self.lpf_gps_e = alpha_filter(alpha = 0.5)
         self.lpf_gps_course = alpha_filter(alpha = 0.5)
-        #self.lpf_pe = alpha_filter(alpha = 0.5)
-        #self.lpf_h = alpha_filter(alpha = 0.5)
-        #self.lpf_Va = alpha_filter(alpha = 0.5)
-        #self.lpf_phi = alpha_filter(alpha = 0.5)
-        #self.lpf_theta = alpha_filter(alpha = 0.5)
-        #self.lpf_psi = alpha_filter(alpha = 0.5)
-        #self.lpf_p = alpha_filter(alpha = 0.5)
-        #self.lpf_q = alpha_filter(alpha = 0.5)
-        #self.lpf_r = alpha_filter(alpha = 0.5)
 
         # ekf for phi and theta
         #self.attitude_ekf = ekf_attitude()
@@ -52,9 +43,9 @@ class observer:
     def update(self, measurements):
 
         # estimates for p, q, r are low pass filter of gyro minus bias estimate
-        self.estimated_state.p = self.lpf_gyro_x.update(measurements.gyro_x)
-        self.estimated_state.q = self.lpf_gyro_y.update(measurements.gyro_y)
-        self.estimated_state.r = self.lpf_gyro_z.update(measurements.gyro_z)
+        self.estimated_state.p = self.lpf_gyro_x.update(measurements.gyro_x) - SENSOR.gyro_x_bias
+        self.estimated_state.q = self.lpf_gyro_y.update(measurements.gyro_y) - SENSOR.gyro_y_bias
+        self.estimated_state.r = self.lpf_gyro_z.update(measurements.gyro_z) - SENSOR.gyro_z_bias
 
         # invert sensor model to get altitude and airspeed
         self.estimated_state.h = self.lpf_static.update(measurements.static_pressure)/(P.rho*P.gravity)
@@ -64,7 +55,7 @@ class observer:
         #self.attitude_ekf.update(self.estimated_state, measurements)
         self.estimated_state.phi = np.arctan2(self.lpf_accel_y.update(measurements.accel_y), \
             self.lpf_accel_z.update(measurements.accel_z))
-        self.estimated_state.theta = np.arcsin(self.lpf_accel_x.update(measurements.accel_x),P.gravity)
+        self.estimated_state.theta = np.arcsin(self.lpf_accel_x.update(measurements.accel_x)/P.gravity)
 
         # estimate pn, pe, Vg, chi, wn, we, psi
         #self.position_ekf.update(self.estimated_state, measurements)
@@ -91,6 +82,7 @@ class alpha_filter:
         self.y += (1.-self.alpha)*u
         return self.y
 
+'''
 class ekf_attitude:
     # implement continous-discrete EKF to estimate roll and pitch angles
     def __init__(self):
@@ -243,3 +235,5 @@ class ekf_position:
         while chi_c-chi < -np.pi:
             chi_c = chi_c + 2.0 * np.pi
         return chi_c
+
+    '''
