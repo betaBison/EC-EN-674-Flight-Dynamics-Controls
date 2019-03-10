@@ -57,8 +57,9 @@ class autopilot:
     def update(self, cmd, state):
 
         # lateral autopilot
-        updated_course_command = self.chooseChiCommand(cmd.course_command,state.chi)
-        phi_c = self.course_from_roll.update(updated_course_command,state.chi)
+        #updated_course_command = self.chooseChiCommand(cmd.course_command,state.chi)
+        chi_c = self.wrap(cmd.course_command,state.chi)
+        phi_c = self.course_from_roll.update(chi_c,state.chi)
         delta_a = self.roll_from_aileron.update(phi_c,state.phi,state.p)
         delta_r = self.yaw_damper.update(state.r)
 
@@ -98,3 +99,12 @@ class autopilot:
             while abs(command-chi) > 180:
                 command += 180
         return command
+
+    def wrap(self, chi_c, chi):
+        while chi_c-chi > np.pi:
+            print("lower")
+            chi_c = chi_c - 2.0 * np.pi
+        while chi_c-chi < -np.pi:
+            print("higher")
+            chi_c = chi_c + 2.0 * np.pi
+        return chi_c

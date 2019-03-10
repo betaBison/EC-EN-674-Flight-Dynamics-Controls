@@ -48,7 +48,7 @@ class mav_dynamics:
                                [MAV.r0]])   # (12)
         # store wind data for fast recall since it is used at various points in simulation
         self._wind = np.array([[0.], [0.], [0.]])  # wind in NED frame in meters/sec
-        self.chi_prev = 0.
+        #self.chi_prev = 0.
         self._update_velocity_data()
         # store forces to avoid recalculation in the sensors function
         self._forces = np.array([[0.], [0.], [0.]])
@@ -203,12 +203,14 @@ class mav_dynamics:
         self._Vg = sqrt(Vg_n**2+Vg_e**2+Vg_d**2)
         self.gamma = atan2(-Vg_d,sqrt(Vg_n**2 + Vg_e**2))
         self.chi = atan2(Vg_e,Vg_n)
+        '''
         # angle wrapping for commanded phi help
         if self.chi_prev > 0.5*np.pi and self.chi < 0.0:
             self.chi += 2.*np.pi
         if self.chi_prev < -0.5*np.pi and self.chi > 0.0:
             self.chi -= 2.*np.pi
         self.chi_prev = self.chi
+        '''
 
 
     def _forces_moments(self, delta):
