@@ -14,8 +14,32 @@ from chap3.data_viewer import data_viewer
 from chap4.wind_simulation import wind_simulation
 from chap6.autopilot import autopilot
 from chap7.mav_dynamics import mav_dynamics
-from chap8.observer_lpf import observer
+from chap8.observer_ekf import observer
 from tools.signals import signals
+from message_types.msg_state import msg_state
+
+
+def updateInput(true,estimate):
+    input.pn = true.pn      # inertial north position in meters
+    input.pe = true.pn      # inertial east position in meters
+    input.h = estimate.h       # inertial altitude in meters
+    input.phi = true.phi     # roll angle in radians
+    input.theta = true.theta   # pitch angle in radians
+    input.psi = true.psi     # yaw angle in radians
+    input.Va = estimate.Va      # airspeed in meters/sec
+    input.alpha = estimate.alpha   # angle of attack in radians
+    input.beta = estimate.beta    # sideslip angle in radians
+    input.p = estimate.p       # roll rate in radians/sec
+    input.q = estimate.q       # pitch rate in radians/sec
+    input.r = estimate.r       # yaw rate in radians/sec
+    input.Vg = true.Vg      # groundspeed in meters/sec
+    input.gamma = true.gamma   # flight path angle in radians
+    input.chi = true.chi     # course angle in radians
+    input.wn = true.wn      # inertial windspeed in north direction in meters/sec
+    input.we = true.we      # inertial windspeed in east direction in meters/sec
+    input.bx = estimate.bx      # gyro bias along roll axis in radians/sec
+    input.by = estimate.by      # gyro bias along pitch axis in radians/sec
+    input.bz = estimate.bz      # gyro bias along yaw axis in radians/sec
 
 # initialize the visualization
 VIDEO = False  # True==write video, False==don't write video
@@ -32,14 +56,14 @@ wind = wind_simulation(SIM.ts_simulation)
 mav = mav_dynamics(SIM.ts_simulation)
 ctrl = autopilot(SIM.ts_simulation)
 obsv = observer(SIM.ts_simulation)
+input = msg_state()
 
 # autopilot commands
 from message_types.msg_autopilot import msg_autopilot
 commands = msg_autopilot()
 Va_command = signals(dc_offset=25.0, amplitude=3.0, start_time=2.0, frequency = 0.01)
 h_command = signals(dc_offset=100.0, amplitude=10.0, start_time=0.0, frequency = 0.02)
-chi_command = signals(dc_offset=np.radians(180), amplitude=np.radians(45), start_time=5.0, frequency = 0.015)
-
+chi_command = signals(dc_offset=np.radians(30), amplitude=np.radians(45), start_time=5.0, frequency = 0.015)
 # initialize the simulation time
 sim_time = SIM.start_time
 
@@ -55,12 +79,13 @@ while sim_time < SIM.end_time:
     #-------controller-------------
     measurements = mav.sensors  # get sensor measurements
     estimated_state = obsv.update(measurements)  # estimate states from measurements
-    delta, commanded_state = ctrl.update(commands, estimated_state)
+    updateInput(mav.msg_true_state,estimated_state)
+    delta, commanded_state = ctrl.update(commands,input)
+    #delta, commanded_state = ctrl.update(commands, estimated_state)
 
     #-------physical system-------------
     #current_wind = wind.update()  # get the new wind vector
     current_wind = np.zeros((6,1))
-    print(delta)
     mav.update_state(delta, current_wind)  # propagate the MAV dynamics
     mav.update_sensors()
 
