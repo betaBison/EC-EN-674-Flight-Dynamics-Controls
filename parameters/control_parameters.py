@@ -17,8 +17,8 @@ delta_t = TR.trim_input.item(3)
 
 #----------roll loop-------------
 # design parameters
-roll_wn = 15.
-roll_zeta = 1.2
+roll_wn = 8.
+roll_zeta = 1.707
 # calculations
 a_phi_1 = -0.5*MAV.rho*Va0**2*MAV.S_wing*MAV.b*MAV.C_p_p*MAV.b/(2.*Va0)
 a_phi_2 = 0.5*MAV.rho*Va0**2*MAV.S_wing*MAV.b*MAV.C_p_delta_a
@@ -27,8 +27,8 @@ roll_kd = (2.*roll_zeta*roll_wn - a_phi_1)/a_phi_2
 
 #----------course loop-------------
 # design parameters
-W_roll_course_separation = 12.
-course_zeta = 3.0
+W_roll_course_separation = 7.
+course_zeta = 1.1
 
 # calculations
 course_wn = roll_wn/W_roll_course_separation
@@ -59,7 +59,7 @@ K_theta_DC = (pitch_kp*a_theta_3)/pitch_wn**2
 #----------altitude loop-------------
 # design Parameters
 W_pitch_altitude_separation = 35.
-altitude_zeta = 1.0
+altitude_zeta = 0.707
 #calculations
 altitude_wn = pitch_wn/W_pitch_altitude_separation
 altitude_kp = (2.*altitude_zeta*altitude_wn)/(K_theta_DC*Va0)

@@ -77,15 +77,15 @@ class alpha_filter:
 class ekf_attitude:
     # implement continous-discrete EKF to estimate roll and pitch angles
     def __init__(self):
-        self.Q = 1e-5*np.identity(2)
+        self.Q = 1e-50*np.identity(2)
         self.Q_gyro = np.array([[SENSOR.gyro_sigma**2,0.,0.],
                                 [0.,SENSOR.gyro_sigma**2,0.],
                                 [0.,0.,SENSOR.gyro_sigma**2]])
         self.R_accel = np.array([[SENSOR.accel_sigma**2,0.,0.],
                                 [0.,SENSOR.accel_sigma**2,0.],
                                 [0.,0.,SENSOR.accel_sigma**2]])
-        self.N = 1  # number of prediction step per sample
-        self.xhat =  np.array([[P.phi0,P.theta0]])# initial state: phi, theta
+        self.N = 4  # number of prediction step per sample
+        self.xhat =  np.array([[P.phi0],[P.theta0]])# initial state: phi, theta
         self.P = np.array([[0.,0.],
                            [0.,0.]])
         self.Ts = SIM.ts_control/self.N
@@ -120,21 +120,14 @@ class ekf_attitude:
         # model propagation
         for ii in range(self.N):
              # propagate model
-            self.xhat = np.array([[state.phi,state.theta]])
+            self.xhat = np.array([[state.phi],[state.theta]])
             # compute Jacobian
             A = jacobian(self.f, self.xhat, state)
             # compute G matrix for gyro noise
             G = np.array([[1.0, np.sin(state.phi)*np.tan(state.theta),np.cos(state.phi)*np.tan(state.theta)],
                           [0., np.cos(state.phi), -np.sin(state.phi)]])
             # update P with continuous time model
-            print("A = ",A)
-            print("self.P=",self.P)
-            print("A.T=",A.T)
-            print("self.Q=",self.Q)
-            print("G=",G)
-            print("self.Q_gyro=",self.Q_gyro)
-            print("G.T=",G.T)
-            self.P += self.Ts * (A @ self.P + np.outer(self.P,A.T) + self.Q + G @ self.Q_gyro @ G.T)
+            self.P += self.Ts * (A @ self.P + self.P @ A.T + self.Q + G @ self.Q_gyro @ G.T)
             # convert to discrete time models
             #A_d =
             #G_d =
@@ -146,15 +139,14 @@ class ekf_attitude:
         threshold = 2.0
         h = self.h(self.xhat, state)
         C = jacobian(self.h, self.xhat, state)
-        y = np.array([measurement.accel_x, measurement.accel_y, measurement.accel_z])
+        y = np.array([[measurement.accel_x], [measurement.accel_y], [measurement.accel_z]])
         for ii in range(3):
             if np.abs(y[ii]-h[ii,0]) < threshold:
-                Ci = C.item(ii)
-                Li = self.P @ Ci @ np.linalg.inv(self.R_accel + Ci @ self.P @ Ci.T)
-                self.P = (np.identity(3) - Li @ Ci) @ self.P
-                self.xhat += Li @ (y.item(ii) - h.item(ii))
-
-'''
+                Ci = C
+                Li = self.P @ Ci.T @ np.linalg.inv(self.R_accel + Ci @ self.P @ Ci.T)
+                self.P = (np.identity(2) - Li @ Ci) @ self.P
+                self.xhat += Li @ (y - h)
+"""
 class ekf_position:
     # implement continous-discrete EKF to estimate pn, pe, chi, Vg
     def __init__(self):
@@ -240,4 +232,4 @@ class ekf_position:
             self.gps_e_old = measurement.gps_e
             self.gps_Vg_old = measurement.gps_Vg
             self.gps_course_old = measurement.gps_course
-'''
+"""

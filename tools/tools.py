@@ -44,7 +44,6 @@ def jacobian(fun, x, state):
         x_eps[ii][0] += eps
         f_eps = fun(x_eps, state)
         df = (f_eps - f) / eps
-        print("J = ",J," df = ",df)
         J[:, ii] = df[:, 0]
     return J
 

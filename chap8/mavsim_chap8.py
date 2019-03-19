@@ -23,7 +23,7 @@ def updateInput(true,estimate):
     input.pn = true.pn      # inertial north position in meters
     input.pe = true.pn      # inertial east position in meters
     input.h = estimate.h       # inertial altitude in meters
-    input.phi = true.phi     # roll angle in radians
+    input.phi = estimate.phi     # roll angle in radians
     input.theta = true.theta   # pitch angle in radians
     input.psi = true.psi     # yaw angle in radians
     input.Va = estimate.Va      # airspeed in meters/sec
