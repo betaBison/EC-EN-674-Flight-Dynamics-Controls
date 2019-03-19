@@ -11,7 +11,7 @@ import parameters.control_parameters as CTRL
 import parameters.aerosonde_parameters as P
 import parameters.simulation_parameters as SIM
 import parameters.sensor_parameters as SENSOR
-from tools.tools import jacobian #,Euler2Rotation
+from tools.tools import jacobian, wrap #,Euler2Rotation
 
 from message_types.msg_state import msg_state
 
@@ -225,11 +225,4 @@ class ekf_position:
             self.gps_e_old = measurement.gps_e
             self.gps_Vg_old = measurement.gps_Vg
             self.gps_course_old = measurement.gps_course
-
-    def wrap(self, chi_c, chi):
-        while chi_c-chi > np.pi:
-            chi_c = chi_c - 2.0 * np.pi
-        while chi_c-chi < -np.pi:
-            chi_c = chi_c + 2.0 * np.pi
-        return chi_c
 '''

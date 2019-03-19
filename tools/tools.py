@@ -46,3 +46,10 @@ def jacobian(fun, x, state):
         df = (f_eps - f) / eps
         J[:, i] = df[:, 0]
     return J
+
+def wrap(self, chi_c, chi):
+    while chi_c-chi > np.pi:
+        chi_c = chi_c - 2.0 * np.pi
+    while chi_c-chi < -np.pi:
+        chi_c = chi_c + 2.0 * np.pi
+    return chi_c
