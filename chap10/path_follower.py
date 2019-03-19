@@ -31,11 +31,3 @@ class path_follower:
         self.autopilot_commands.course_command =
         self.autopilot_commands.altitude_command =
         self.autopilot_commands.phi_feedforward =
-
-    def _wrap(self, chi_c, chi):
-        while chi_c-chi > np.pi:
-            chi_c = chi_c - 2.0 * np.pi
-        while chi_c-chi < -np.pi:
-            chi_c = chi_c + 2.0 * np.pi
-        return chi_c
-

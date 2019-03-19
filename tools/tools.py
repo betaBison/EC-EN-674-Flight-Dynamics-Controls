@@ -39,12 +39,13 @@ def jacobian(fun, x, state):
     n = x.shape[0]
     eps = 0.01  # deviation
     J = np.zeros((m, n))
-    for i in range(0, n):
+    for ii in range(n):
         x_eps = np.copy(x)
-        x_eps[i][0] += eps
+        x_eps[ii][0] += eps
         f_eps = fun(x_eps, state)
         df = (f_eps - f) / eps
-        J[:, i] = df[:, 0]
+        print("J = ",J," df = ",df)
+        J[:, ii] = df[:, 0]
     return J
 
 def wrap(self, chi_c, chi):
