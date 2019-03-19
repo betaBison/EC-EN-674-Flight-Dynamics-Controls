@@ -78,7 +78,7 @@ class alpha_filter:
 class ekf_attitude:
     # implement continous-discrete EKF to estimate roll and pitch angles
     def __init__(self):
-        self.Q = 1e-50*np.identity(2)
+        self.Q = 1e-100*np.identity(2)
         self.Q_gyro = np.array([[SENSOR.gyro_sigma**2,0.,0.],
                                 [0.,SENSOR.gyro_sigma**2,0.],
                                 [0.,0.,SENSOR.gyro_sigma**2]])
@@ -87,13 +87,13 @@ class ekf_attitude:
                                 [0.,0.,SENSOR.accel_sigma**2]])
         self.N = 4  # number of prediction step per sample
         self.xhat =  np.array([[P.phi0],[P.theta0]])# initial state: phi, theta
-        self.P = np.array([[0.,0.],
-                           [0.,0.]])
+        self.P = np.array([[1.,0.],
+                           [0.,1.]])
         self.Ts = SIM.ts_control/self.N
 
     def update(self, state, measurement):
         self.propagate_model(state)
-        self.measurement_update(state, measurement)
+        #self.measurement_update(state, measurement)
         state.phi = self.xhat.item(0)
         state.theta = self.xhat.item(1)
 
@@ -120,8 +120,9 @@ class ekf_attitude:
     def propagate_model(self, state):
         # model propagation
         for ii in range(self.N):
-             # propagate model
-            self.xhat = np.array([[state.phi],[state.theta]])
+            # propagate model
+            #x = np.array([[state.phi,state.theta]])
+            self.xhat += self.Ts*self.f(self.xhat,state)
             # compute Jacobian
             A = jacobian(self.f, self.xhat, state)
             # compute G matrix for gyro noise
@@ -131,7 +132,7 @@ class ekf_attitude:
             self.P += self.Ts * (A @ self.P + self.P @ A.T + self.Q + G @ self.Q_gyro @ G.T)
             # convert to discrete time models
             #A_d =
-            #G_d =
+            #G_d = ts*G
             # update P with discrete time model
             #self.P =
 
@@ -141,25 +142,34 @@ class ekf_attitude:
         h = self.h(self.xhat, state)
         C = jacobian(self.h, self.xhat, state)
         y = np.array([[measurement.accel_x], [measurement.accel_y], [measurement.accel_z]])
+        error = False
         for ii in range(3):
-            if np.abs(y[ii]-h[ii,0]) < threshold:
-                Ci = C
-                Li = self.P @ Ci.T @ np.linalg.inv(self.R_accel + Ci @ self.P @ Ci.T)
-                self.P = (np.identity(2) - Li @ Ci) @ self.P
-                self.xhat += Li @ (y - h)
+            if np.abs(y[ii]-h[ii,0]) > threshold:
+                error = True
+        if not(error):
+            Ci = C
+            Li = self.P @ Ci.T @ np.linalg.inv(self.R_accel + Ci @ self.P @ Ci.T)
+            self.P = (np.identity(2) - Li @ Ci) @ self.P
+            self.xhat += Li @ (y - h)
 
 class ekf_position:
     # implement continous-discrete EKF to estimate pn, pe, chi, Vg
     def __init__(self):
-        self.Q = 1e-5*np.identity(7)
+        self.Q = 1e-500*np.identity(7)
         self.R = np.array([[SENSOR.gps_n_sigma**2,0.,0.,0.],
                            [0.,SENSOR.gps_e_sigma**2,0.,0.],
                            [0.,0.,SENSOR.gps_Vg_sigma**2,0.],
                            [0.,0.,0.,SENSOR.gps_course_sigma**2]])
         self.N = 4  # number of prediction step per sample
         self.Ts = (SIM.ts_control / self.N)
-        self.xhat = np.zeros((7,1))
-        self.P = np.zeros((7,7))
+        self.xhat = np.array([[P.pn0],
+                              [P.pe0],
+                              [P.u0],
+                              [P.psi0],
+                              [0.0],
+                              [0.0],
+                              [P.psi0]])
+        self.P = np.identity(7)
         self.gps_n_old = 9999
         self.gps_e_old = 9999
         self.gps_Vg_old = 9999
@@ -168,7 +178,7 @@ class ekf_position:
 
     def update(self, state, measurement):
         self.propagate_model(state)
-        self.measurement_update(state, measurement)
+        #self.measurement_update(state, measurement)
         state.pn = self.xhat.item(0)
         state.pe = self.xhat.item(1)
         state.Vg = self.xhat.item(2)
@@ -179,17 +189,21 @@ class ekf_position:
 
     def f(self, x, state):
         # system dynamics for propagation model: xdot = f(x, u)
-        Vg = state.Vg
+        Vg = x.item(2)
+        if Vg == 0:
+            Vg = state.Vg
+            print("warning")
         Va = state.Va
-        chi = state.chi
-        psi = state.psi
+        print("Va=",Va)
+        chi = x.item(3)
+        psi = x.item(6)
         phi = state.phi
         theta = state.theta
         q = state.q
         r = state.r
         psi_dot = q*np.sin(phi)/np.cos(theta)+r*np.cos(phi)/np.cos(theta)
-        wn = state.wn
-        we = state.we
+        wn = x.item(4)
+        we = x.item(5)
         _f = np.array([[Vg*np.cos(chi)],
                        [Vg*np.sin(chi)],
                        [((Va*np.cos(psi)+wn)*(-Va*psi_dot*np.sin(psi))+(Va*np.sin(psi)+we)*(Va*psi_dot*np.cos(psi)))/Vg],
@@ -201,10 +215,10 @@ class ekf_position:
 
     def h_gps(self, x, state):
         # measurement model for gps measurements
-        pn = state.pn
-        pe = state.pe
-        Vg = state.Vg
-        chi = state.chi
+        pn = x.item(0)
+        pe = x.item(1)
+        Vg = x.item(2)
+        chi = x.item(3)
 
         _h = np.array([[pn],
                        [pe],
@@ -216,11 +230,11 @@ class ekf_position:
     def h_pseudo(self, x, state):
         # measurement model for wind triangale pseudo measurement
         Va = state.Va
-        psi = state.psi
-        wn = state.wn
-        we = state.we
-        Vg = state.Vg
-        chi = state.chi
+        psi = x.item(6)
+        wn = x.item(4)
+        we = x.item(5)
+        Vg = x.item(2)
+        chi = x.item(3)
         _h = np.array([[Va*np.cos(psi)+wn-Vg*np.cos(chi)],
                        [Va*np.sin(psi)+we-Vg*np.sin(chi)]])
         return _h
@@ -229,18 +243,13 @@ class ekf_position:
         # model propagation
         for i in range(0, self.N):
             # propagate model
-            self.xhat = np.array([[state.pn],
-                                  [state.pe],
-                                  [state.Vg],
-                                  [state.chi],
-                                  [state.wn],
-                                  [state.we],
-                                  [state.psi]])
+            print("ans=",self.f(self.xhat,state))
+            self.xhat += self.Ts*self.f(self.xhat,state)
+            print(self.xhat.item(2))
             # compute Jacobian
             A = jacobian(self.f, self.xhat, state)
-            print("A=",A)
             # update P with continuous time model
-            self.P += self.Ts * (A @ self.P + self.P @ A.T)# + self.Q + G @ self.Q_gyro @ G.T)
+            self.P += self.Ts * (A @ self.P + self.P @ A.T + self.Q)# + G @ self.Q_gyro @ G.T)
             # convert to discrete time models
             #A_d =
             # update P with discrete time model
@@ -252,7 +261,7 @@ class ekf_position:
         C = jacobian(self.h_pseudo, self.xhat, state)
         print("C1=",C)
         y = np.array([[0.],[0.]])
-        for i in range(2):
+        for i in range(1):
             Ci = C[:,4:6]
             print("Ci=",Ci)
             Li = self.P[4:6,4:6] @ Ci.T
@@ -269,7 +278,7 @@ class ekf_position:
             C = jacobian(self.h_gps, self.xhat, state)
             print("C2=",C)
             y = np.array([[measurement.gps_n], [measurement.gps_e], [measurement.gps_Vg], [measurement.gps_course]])
-            for i in range(4):
+            for i in range(1):
                 Ci = C[:,0:4]
                 Li = self.P[0:4,0:4] @ Ci.T @ np.linalg.inv(self.R + Ci @ self.P[0:4,0:4] @ Ci.T)
                 self.P[0:4,0:4] = (np.identity(4)-Li*Ci) @ self.P[0:4,0:4]
