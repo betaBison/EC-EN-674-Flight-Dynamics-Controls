@@ -86,7 +86,6 @@ class pd_control_with_rate:
         error = y_ref - y
         u_unsat = error*self.kp - ydot*self.kd
         u_sat = self._saturate(u_unsat)
-        u_sat = u_sat.item()
         return u_sat
 
     def _saturate(self, u):

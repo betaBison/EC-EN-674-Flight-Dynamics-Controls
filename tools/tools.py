@@ -47,7 +47,7 @@ def jacobian(fun, x, state):
         J[:, ii] = df[:, 0]
     return J
 
-def wrap(self, chi_c, chi):
+def wrap(chi_c, chi):
     while chi_c-chi > np.pi:
         chi_c = chi_c - 2.0 * np.pi
     while chi_c-chi < -np.pi:

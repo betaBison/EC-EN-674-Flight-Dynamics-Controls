@@ -11,6 +11,7 @@ import parameters.control_parameters as AP
 from chap6.pid_control import pi_control, pd_control_with_rate
 from message_types.msg_state import msg_state
 from tools.transfer_function import transfer_function
+from tools.tools import wrap
 
 
 class autopilot:
@@ -58,7 +59,7 @@ class autopilot:
 
         # lateral autopilot
         #updated_course_command = self.chooseChiCommand(cmd.course_command,state.chi)
-        chi_c = self.wrap(cmd.course_command,state.chi)
+        chi_c = wrap(cmd.course_command,state.chi)
         phi_c = self.course_from_roll.update(chi_c,state.chi)
         delta_a = self.roll_from_aileron.update(phi_c,state.phi,state.p)
         delta_r = self.yaw_damper.update(state.r)
@@ -90,21 +91,3 @@ class autopilot:
         else:
             output = input
         return output
-
-    def chooseChiCommand(self,command,chi):
-        if command > chi:
-            while abs(command-chi) > 180:
-                command -= 180
-        elif command < chi:
-            while abs(command-chi) > 180:
-                command += 180
-        return command
-
-    def wrap(self, chi_c, chi):
-        while chi_c-chi > np.pi:
-            print("lower")
-            chi_c = chi_c - 2.0 * np.pi
-        while chi_c-chi < -np.pi:
-            print("higher")
-            chi_c = chi_c + 2.0 * np.pi
-        return chi_c
