@@ -203,15 +203,6 @@ class mav_dynamics:
         self._Vg = sqrt(Vg_n**2+Vg_e**2+Vg_d**2)
         self.gamma = atan2(-Vg_d,sqrt(Vg_n**2 + Vg_e**2))
         self.chi = atan2(Vg_e,Vg_n)
-        '''
-        # angle wrapping for commanded phi help
-        if self.chi_prev > 0.5*np.pi and self.chi < 0.0:
-            self.chi += 2.*np.pi
-        if self.chi_prev < -0.5*np.pi and self.chi > 0.0:
-            self.chi -= 2.*np.pi
-        self.chi_prev = self.chi
-        '''
-
 
     def _forces_moments(self, delta):
         """

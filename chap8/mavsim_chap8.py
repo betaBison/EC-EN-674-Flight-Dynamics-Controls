@@ -20,23 +20,23 @@ from message_types.msg_state import msg_state
 
 
 def updateInput(true,estimate):
-    input.pn = true.pn      # inertial north position in meters
-    input.pe = true.pn      # inertial east position in meters
+    input.pn = estimate.pn      # inertial north position in meters
+    input.pe = estimate.pn      # inertial east position in meters
     input.h = estimate.h       # inertial altitude in meters
-    input.phi = true.phi     # roll angle in radians
-    input.theta = true.theta   # pitch angle in radians
-    input.psi = true.psi     # yaw angle in radians
+    input.phi = estimate.phi     # roll angle in radians
+    input.theta = estimate.theta   # pitch angle in radians
+    input.psi = estimate.psi     # yaw angle in radians
     input.Va = estimate.Va      # airspeed in meters/sec
     input.alpha = estimate.alpha   # angle of attack in radians
     input.beta = estimate.beta    # sideslip angle in radians
     input.p = estimate.p       # roll rate in radians/sec
     input.q = estimate.q       # pitch rate in radians/sec
     input.r = estimate.r       # yaw rate in radians/sec
-    input.Vg = true.Vg      # groundspeed in meters/sec
+    input.Vg = estimate.Vg      # groundspeed in meters/sec
     input.gamma = true.gamma   # flight path angle in radians
-    input.chi = true.chi     # course angle in radians
-    input.wn = true.wn      # inertial windspeed in north direction in meters/sec
-    input.we = true.we      # inertial windspeed in east direction in meters/sec
+    input.chi = estimate.chi     # course angle in radians
+    input.wn = estimate.wn      # inertial windspeed in north direction in meters/sec
+    input.we = estimate.we      # inertial windspeed in east direction in meters/sec
     input.bx = estimate.bx      # gyro bias along roll axis in radians/sec
     input.by = estimate.by      # gyro bias along pitch axis in radians/sec
     input.bz = estimate.bz      # gyro bias along yaw axis in radians/sec
@@ -69,7 +69,10 @@ sim_time = SIM.start_time
 
 # main simulation loop
 print("Press Command-Q to exit...")
+jj = 0
 while sim_time < SIM.end_time:
+    #while jj < 5:
+    jj += 1
 
     #-------autopilot commands-------------
     commands.airspeed_command = Va_command.square(sim_time)
@@ -84,8 +87,8 @@ while sim_time < SIM.end_time:
     #delta, commanded_state = ctrl.update(commands, estimated_state)
 
     #-------physical system-------------
-    #current_wind = wind.update()  # get the new wind vector
-    current_wind = np.zeros((6,1))
+    current_wind = wind.update()  # get the new wind vector
+    #current_wind = np.zeros((6,1))
     mav.update_state(delta, current_wind)  # propagate the MAV dynamics
     mav.update_sensors()
 

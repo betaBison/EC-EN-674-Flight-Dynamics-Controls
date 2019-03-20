@@ -78,7 +78,7 @@ class alpha_filter:
 class ekf_attitude:
     # implement continous-discrete EKF to estimate roll and pitch angles
     def __init__(self):
-        self.Q = 1e-100*np.identity(2)
+        self.Q = 1e-50*np.identity(2)
         self.Q_gyro = np.array([[SENSOR.gyro_sigma**2,0.,0.],
                                 [0.,SENSOR.gyro_sigma**2,0.],
                                 [0.,0.,SENSOR.gyro_sigma**2]])
@@ -155,7 +155,13 @@ class ekf_attitude:
 class ekf_position:
     # implement continous-discrete EKF to estimate pn, pe, chi, Vg
     def __init__(self):
-        self.Q = 1e-500*np.identity(7)
+        self.Q = np.diag([1e-50,
+                          1e-50,
+                          1e-50,
+                          1e-50,
+                          5e-2,
+                          5e-2,
+                          1e-50])
         self.R = np.array([[SENSOR.gps_n_sigma**2,0.,0.,0.],
                            [0.,SENSOR.gps_e_sigma**2,0.,0.],
                            [0.,0.,SENSOR.gps_Vg_sigma**2,0.],
@@ -178,7 +184,7 @@ class ekf_position:
 
     def update(self, state, measurement):
         self.propagate_model(state)
-        #self.measurement_update(state, measurement)
+        self.measurement_update(state, measurement)
         state.pn = self.xhat.item(0)
         state.pe = self.xhat.item(1)
         state.Vg = self.xhat.item(2)
@@ -190,11 +196,7 @@ class ekf_position:
     def f(self, x, state):
         # system dynamics for propagation model: xdot = f(x, u)
         Vg = x.item(2)
-        if Vg == 0:
-            Vg = state.Vg
-            print("warning")
         Va = state.Va
-        print("Va=",Va)
         chi = x.item(3)
         psi = x.item(6)
         phi = state.phi
@@ -204,6 +206,7 @@ class ekf_position:
         psi_dot = q*np.sin(phi)/np.cos(theta)+r*np.cos(phi)/np.cos(theta)
         wn = x.item(4)
         we = x.item(5)
+
         _f = np.array([[Vg*np.cos(chi)],
                        [Vg*np.sin(chi)],
                        [((Va*np.cos(psi)+wn)*(-Va*psi_dot*np.sin(psi))+(Va*np.sin(psi)+we)*(Va*psi_dot*np.cos(psi)))/Vg],
@@ -224,7 +227,6 @@ class ekf_position:
                        [pe],
                        [Vg],
                        [chi]])
-
         return _h
 
     def h_pseudo(self, x, state):
@@ -243,9 +245,7 @@ class ekf_position:
         # model propagation
         for i in range(0, self.N):
             # propagate model
-            print("ans=",self.f(self.xhat,state))
             self.xhat += self.Ts*self.f(self.xhat,state)
-            print(self.xhat.item(2))
             # compute Jacobian
             A = jacobian(self.f, self.xhat, state)
             # update P with continuous time model
@@ -259,11 +259,14 @@ class ekf_position:
         # always update based on wind triangle pseudu measurement
         h = self.h_pseudo(self.xhat, state)
         C = jacobian(self.h_pseudo, self.xhat, state)
-        print("C1=",C)
         y = np.array([[0.],[0.]])
-        for i in range(1):
+        threshold = 10.0
+        error = False
+        for ii in range(2):
+            if np.abs(y[ii]-h[ii,0]) > threshold:
+                error = True
+        if not(error):
             Ci = C[:,4:6]
-            print("Ci=",Ci)
             Li = self.P[4:6,4:6] @ Ci.T
             self.P[4:6,4:6] = (np.identity(2) - Li @ Ci) @ self.P[4:6,4:6]
             self.xhat[4:6] += Li @ (y-h)
@@ -276,9 +279,13 @@ class ekf_position:
 
             h = self.h_gps(self.xhat, state)
             C = jacobian(self.h_gps, self.xhat, state)
-            print("C2=",C)
             y = np.array([[measurement.gps_n], [measurement.gps_e], [measurement.gps_Vg], [measurement.gps_course]])
-            for i in range(1):
+            threshold = 20.0
+            error = False
+            for ii in range(4):
+                if np.abs(y[ii]-h[ii,0]) > threshold:
+                    error = True
+            if not(error):
                 Ci = C[:,0:4]
                 Li = self.P[0:4,0:4] @ Ci.T @ np.linalg.inv(self.R + Ci @ self.P[0:4,0:4] @ Ci.T)
                 self.P[0:4,0:4] = (np.identity(4)-Li*Ci) @ self.P[0:4,0:4]
