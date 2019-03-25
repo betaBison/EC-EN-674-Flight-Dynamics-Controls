@@ -12,7 +12,7 @@ import parameters.aerosonde_parameters as P
 
 import parameters.simulation_parameters as SIM
 import parameters.sensor_parameters as SENSOR
-from tools.tools import jacobian, wrap #,Euler2Rotation
+from tools.tools import jacobian, wrapAnglePi2Pi #,Euler2Rotation
 
 from message_types.msg_state import msg_state
 
@@ -157,11 +157,11 @@ class ekf_position:
     def __init__(self):
         self.Q = np.diag([1e-50,
                           1e-50,
-                          1e-50,
+                          1e-1,
                           1e-50,
                           5e-2,
                           5e-2,
-                          1e-50])
+                          1e-1])
         self.R = np.array([[SENSOR.gps_n_sigma**2,0.,0.,0.],
                            [0.,SENSOR.gps_e_sigma**2,0.,0.],
                            [0.,0.,SENSOR.gps_Vg_sigma**2,0.],
@@ -211,8 +211,8 @@ class ekf_position:
                        [Vg*np.sin(chi)],
                        [((Va*np.cos(psi)+wn)*(-Va*psi_dot*np.sin(psi))+(Va*np.sin(psi)+we)*(Va*psi_dot*np.cos(psi)))/Vg],
                        [P.gravity*np.tan(phi)*np.cos(chi-psi)/Vg],
-                       [0.],
-                       [0.],
+                       [0.1],
+                       [0.1],
                        [psi_dot]])
         return _f
 
@@ -280,18 +280,22 @@ class ekf_position:
             h = self.h_gps(self.xhat, state)
             C = jacobian(self.h_gps, self.xhat, state)
             y = np.array([[measurement.gps_n], [measurement.gps_e], [measurement.gps_Vg], [measurement.gps_course]])
-            threshold = 20.0
-            error = False
+            Ci = C[:,0:4]
+            Li = self.P[0:4,0:4] @ Ci.T @ np.linalg.inv(self.R + Ci @ self.P[0:4,0:4] @ Ci.T)
+            self.P[0:4,0:4] = (np.identity(4)-Li*Ci) @ self.P[0:4,0:4]
+            new_add = Li @ (y - h)
+            threshold = np.array([20.0,30.0,10.0,np.radians(5.0)])
             for ii in range(4):
-                if np.abs(y[ii]-h[ii,0]) > threshold:
-                    error = True
-            if not(error):
-                Ci = C[:,0:4]
-                Li = self.P[0:4,0:4] @ Ci.T @ np.linalg.inv(self.R + Ci @ self.P[0:4,0:4] @ Ci.T)
-                self.P[0:4,0:4] = (np.identity(4)-Li*Ci) @ self.P[0:4,0:4]
-                self.xhat[0:4] += Li @ (y - h)
+                if np.abs(new_add.item(ii)) < threshold[ii]:
+                    self.xhat[ii] += new_add.item(ii)
+                else:
+                    pass
+                    #print(ii,new_add.item(ii))
             # update stored GPS signals
             self.gps_n_old = measurement.gps_n
             self.gps_e_old = measurement.gps_e
             self.gps_Vg_old = measurement.gps_Vg
             self.gps_course_old = measurement.gps_course
+
+            self.xhat[3] = wrapAnglePi2Pi(self.xhat[3])
+            self.xhat[6] = wrapAnglePi2Pi(self.xhat[6])

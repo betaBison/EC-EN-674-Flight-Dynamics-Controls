@@ -33,7 +33,7 @@ course_zeta = 1.1
 # calculations
 course_wn = roll_wn/W_roll_course_separation
 course_kp = 2.*course_zeta*course_wn*Vg/gravity
-course_ki = course_wn**2*Vg/gravity
+course_ki = 0.1*(course_wn**2*Vg/gravity)
 
 #----------sideslip loop-------------
 #sideslip_ki =

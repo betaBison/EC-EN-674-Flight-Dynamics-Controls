@@ -53,3 +53,12 @@ def wrap(chi_c, chi):
     while chi_c-chi < -np.pi:
         chi_c = chi_c + 2.0 * np.pi
     return chi_c
+
+def wrapAnglePi2Pi(angle):
+    if angle > np.pi:
+        output = angle - 2.*np.pi
+    elif angle < -np.pi:
+        output = angle + 2.*np.pi
+    else:
+        output = angle
+    return output
