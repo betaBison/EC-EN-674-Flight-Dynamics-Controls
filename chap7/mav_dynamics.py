@@ -71,6 +71,11 @@ class mav_dynamics:
 
     ###################################
     # public functions
+    def update(self,delta,wind):
+        self.update_state(delta,wind)
+        self.update_sensors()
+
+
     def update_state(self, delta, wind):
         '''
             Integrate the differential equations defining dynamics, update sensors
@@ -105,6 +110,8 @@ class mav_dynamics:
 
         # update the message class for the true state
         self._update_msg_true_state()
+
+
 
     ###################################
     # private functions

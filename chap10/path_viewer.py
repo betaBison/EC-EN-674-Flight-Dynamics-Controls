@@ -27,8 +27,8 @@ class path_viewer():
         grid = gl.GLGridItem() # make a grid to represent the ground
         grid.scale(self.scale/20, self.scale/20, self.scale/20) # set the size of the grid (distance between each line)
         self.window.addItem(grid) # add grid to viewer
-        #self.window.setCameraPosition(distance=self.scale, elevation=90, azimuth=0)
-        self.window.setCameraPosition(distance=self.scale/2., elevation=5, azimuth=25)
+        self.window.setCameraPosition(distance=self.scale/5., elevation=90, azimuth=0)
+        #self.window.setCameraPosition(distance=self.scale/2., elevation=5, azimuth=25) # straight line
         self.window.setBackgroundColor('k')  # set background color to black
         self.window.show()  # display configured window
         self.window.raise_() # bring window to the front
