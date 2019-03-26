@@ -32,6 +32,12 @@ def RotationBody2Vehicle(phi,theta,psi):
                        [cos(phi)*sin(theta)*cos(psi)+sin(phi)*sin(psi),cos(phi)*sin(theta)*sin(psi)-sin(phi)*cos(psi),cos(phi)*cos(theta)]])
     return result.T
 
+def RotationMatrix(angle):
+    result = np.array([[cos(angle),sin(angle),0.],
+                       [-sin(angle),cos(angle),0.],
+                       [0.,0.,1.]])
+    return result
+
 def jacobian(fun, x, state):
     # compute jacobian of fun with respect to x
     f = fun(x, state)

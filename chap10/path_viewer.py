@@ -1,7 +1,7 @@
 """
 mavsimPy: path drawing function
     - Beard & McLain, PUP, 2012
-    - Update history:  
+    - Update history:
         1/8/2019 - RWB
 """
 import sys
@@ -11,8 +11,8 @@ import numpy as np
 import pyqtgraph as pg
 import pyqtgraph.opengl as gl
 import pyqtgraph.Vector as Vector
-
-from tools.rotations import Euler2Rotation
+from PyQt5 import QtWidgets
+from tools.tools import RotationBody2Vehicle
 
 class path_viewer():
     def __init__(self):
@@ -21,11 +21,14 @@ class path_viewer():
         self.app = pg.QtGui.QApplication([])  # initialize QT
         self.window = gl.GLViewWidget()  # initialize the view object
         self.window.setWindowTitle('Path Viewer')
-        self.window.setGeometry(0, 0, 1000, 1000)  # args: upper_left_x, upper_right_y, width, height
+        #self.window.setGeometry(0, 0, 1000, 1000)  # args: upper_left_x, upper_right_y, width, height
+        sg = QtWidgets.QDesktopWidget().availableGeometry()
+        self.window.setGeometry(sg.width()/2.,0,sg.width()/2.,sg.height())
         grid = gl.GLGridItem() # make a grid to represent the ground
         grid.scale(self.scale/20, self.scale/20, self.scale/20) # set the size of the grid (distance between each line)
         self.window.addItem(grid) # add grid to viewer
-        self.window.setCameraPosition(distance=self.scale, elevation=90, azimuth=0)
+        #self.window.setCameraPosition(distance=self.scale, elevation=90, azimuth=0)
+        self.window.setCameraPosition(distance=self.scale/2., elevation=5, azimuth=25)
         self.window.setBackgroundColor('k')  # set background color to black
         self.window.show()  # display configured window
         self.window.raise_() # bring window to the front
@@ -50,7 +53,7 @@ class path_viewer():
         """
         mav_position = np.array([[state.pn], [state.pe], [-state.h]])  # NED coordinates
         # attitude of mav as a rotation matrix R from body to inertial
-        R = Euler2Rotation(state.phi, state.theta, state.psi)
+        R = RotationBody2Vehicle(state.phi, state.theta, state.psi)
         # rotate and translate points defining mav
         rotated_points = self._rotate_points(self.points, R)
         translated_points = self._translate_points(rotated_points, mav_position)
@@ -71,7 +74,7 @@ class path_viewer():
             # initialize drawing of triangular mesh.
             self.body = gl.GLMeshItem(vertexes=mesh,  # defines the triangular mesh (Nx3x3)
                                       vertexColors=self.meshColors, # defines mesh colors (Nx1)
-                                      drawEdges=True,  # draw edges between mesh elements
+                                      drawEdges=False,  # draw edges between mesh elements
                                       smooth=False,  # speeds up rendering
                                       computeNormals=False)  # speeds up rendering
             self.window.addItem(self.body)  # add body to plot
@@ -101,66 +104,45 @@ class path_viewer():
         return translated_points
 
     def _get_mav_points(self):
-        """"
-            Points that define the mav, and the colors of the triangular mesh
-            Define the points on the aircraft following diagram in Figure C.3
-        """
-        # define MAV body parameters
-        unit_length = 0.25
-        fuse_h = unit_length
-        fuse_w = unit_length
-        fuse_l1 = unit_length * 2
-        fuse_l2 = unit_length
-        fuse_l3 = unit_length * 4
-        wing_l = unit_length
-        wing_w = unit_length * 6
-        tail_h = unit_length
-        tail_l = unit_length
-        tail_w = unit_length * 2
-
         #points are in NED coordinates
-        #   define the points on the aircraft following diagram Fig 2.14
-        points = np.array([[fuse_l1, 0, 0],  # point 1 [0]
-                           [fuse_l2, fuse_w / 2.0, -fuse_h / 2.0],  # point 2 [1]
-                           [fuse_l2, -fuse_w / 2.0, -fuse_h / 2.0],  # point 3 [2]
-                           [fuse_l2, -fuse_w / 2.0, fuse_h / 2.0],  # point 4 [3]
-                           [fuse_l2, fuse_w / 2.0, fuse_h / 2.0],  # point 5 [4]
-                           [-fuse_l3, 0, 0],  # point 6 [5]
-                           [0, wing_w / 2.0, 0],  # point 7 [6]
-                           [-wing_l, wing_w / 2.0, 0],  # point 8 [7]
-                           [-wing_l, -wing_w / 2.0, 0],  # point 9 [8]
-                           [0, -wing_w / 2.0, 0],  # point 10 [9]
-                           [-fuse_l3 + tail_l, tail_w / 2.0, 0], # point 11 [10]
-                           [-fuse_l3, tail_w / 2.0, 0],  # point 12 [11]
-                           [-fuse_l3, -tail_w / 2.0, 0],  # point 13 [12]
-                           [-fuse_l3 + tail_l, -tail_w / 2.0, 0],   # point 14 [13]
-                           [-fuse_l3 + tail_l, 0, 0],  # point 15 [14]
-                           [-fuse_l3, 0, -tail_h],  # point 16 [15]
-                           ]).T
+        points = np.genfromtxt ('../chap2/polyvert3.csv', delimiter=",")
+        #print(points.shape[0])
+        points = points.T
+        R = np.array([[0, -1, 0], [1, 0, 0], [0, 0, 1]])
+        points = R @ points
+        R = np.array([[0, 0, -1], [0, 1, 0], [1, 0, 0]])
+        points = R @ points
 
-        # scale points for better rendering
-        scale = 50
+
+        #scale points for better rendering
+        scale = 0.1
         points = scale * points
+        points[0,:] -= scale*180
+        points[2,:] -= scale*40
+
 
         #   define the colors for each face of triangular mesh
         red = np.array([1., 0., 0., 1])
         green = np.array([0., 1., 0., 1])
         blue = np.array([0., 0., 1., 1])
         yellow = np.array([1., 1., 0., 1])
-        meshColors = np.empty((13, 3, 4), dtype=np.float32)
-        meshColors[0] = yellow  # nose-top
-        meshColors[1] = yellow  # nose-right
-        meshColors[2] = yellow  # nose-bottom
-        meshColors[3] = yellow  # nose-left
-        meshColors[4] = blue  # fuselage-left
-        meshColors[5] = blue  # fuselage-top
-        meshColors[6] = blue  # fuselage-right
-        meshColors[7] = red  # fuselage-bottom
-        meshColors[8] = green  # wing
-        meshColors[9] = green  # wing
-        meshColors[10] = green  # horizontal tail
-        meshColors[11] = green  # horizontal tail
-        meshColors[12] = blue  # vertical tail
+        orange = np.array([1.0, 0.647, 0., 1])
+        white_gray = np.array([0.9, 0.9, 0.9, 1])
+        dark_gray = np.array([0.3, 0.3, 0.3, 1])
+        meshColors = np.empty((587, 3, 4), dtype=np.float32)
+        meshColors[0:36] = white_gray # middle of wheels
+        meshColors[36:79] = green # parts of right fuselage and wing
+        meshColors[79:127] = red # parts of left fuselage and wing
+        meshColors[127:200] = dark_gray
+        meshColors[200:313] = dark_gray
+        meshColors[313:356] = white_gray # propeller
+        meshColors[356:378] = white_gray # flanges near tip
+        meshColors[378:470] = green
+        meshColors[470:560] = red
+        meshColors[560:563] = green # underbody patch
+        meshColors[563:575] = white_gray # windows
+        meshColors[575:] = white_gray # inside chamber near front
+
         return points, meshColors
 
     def _points_to_mesh(self, points):
@@ -170,21 +152,9 @@ class path_viewer():
           (a rectangle requires two triangular mesh faces)
         """
         points=points.T
-        mesh = np.array([[points[0], points[1], points[2]],  # nose-top
-                         [points[0], points[1], points[4]],  # nose-right
-                         [points[0], points[3], points[4]],  # nose-bottom
-                         [points[0], points[3], points[2]],  # nose-left
-                         [points[5], points[2], points[3]],  # fuselage-left
-                         [points[5], points[1], points[2]],  # fuselage-top
-                         [points[5], points[1], points[4]],  # fuselage-right
-                         [points[5], points[3], points[4]],  # fuselage-bottom
-                         [points[6], points[7], points[9]],  # wing
-                         [points[7], points[8], points[9]],  # wing
-                         [points[10], points[11], points[12]],  # horizontal tail
-                         [points[10], points[12], points[13]],  # horizontal tail
-                         [points[5], points[14], points[15]],  # vertical tail
-                        ])
-        return mesh
+        mesh2 = np.genfromtxt ('../chap2/polyface3.csv', delimiter=",")
+        mesh3 = np.array(list(map(lambda x: list(map(lambda y: points[int(y)], x)), mesh2)))
+        return mesh3
 
     def straight_line_plot(self, path):
         points = np.array([[path.line_origin.item(0),
@@ -229,4 +199,3 @@ class path_viewer():
                                    antialias=True,
                                    mode='line_strip')
         return object
-

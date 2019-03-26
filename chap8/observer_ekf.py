@@ -158,8 +158,8 @@ class ekf_position:
         self.Q = np.diag([1e-50,
                           1e-50,
                           1e-1,
-                          1e-50,
-                          5e-2,
+                          1e-5,
+                          5e-1,
                           5e-2,
                           1e-1])
         self.R = np.array([[SENSOR.gps_n_sigma**2,0.,0.,0.],

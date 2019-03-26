@@ -13,7 +13,7 @@ from chap3.data_viewer import data_viewer
 from chap4.wind_simulation import wind_simulation
 from chap6.autopilot import autopilot
 from chap7.mav_dynamics import mav_dynamics
-from chap8.observer import observer
+from chap8.observer_ekf import observer
 from chap10.path_follower import path_follower
 from chap10.path_viewer import path_viewer
 
@@ -55,12 +55,12 @@ sim_time = SIM.start_time
 print("Press Command-Q to exit...")
 while sim_time < SIM.end_time:
     #-------observer-------------
-    measurements = mav.sensors()  # get sensor measurements
+    measurements = mav.sensors  # get sensor measurements
     estimated_state = obsv.update(measurements)  # estimate states from measurements
 
     #-------path follower-------------
     autopilot_commands = path_follow.update(path, estimated_state)
-    #autopilot_commands = path_follow.update(path, mav.true_state)  # for debugging
+    #autopilot_commands = path_follow.update(path, mav.msg_true_state)  # for debugging
 
     #-------controller-------------
     delta, commanded_state = ctrl.update(autopilot_commands, estimated_state)
@@ -70,8 +70,8 @@ while sim_time < SIM.end_time:
     mav.update(delta, current_wind)  # propagate the MAV dynamics
 
     #-------update viewer-------------
-    path_view.update(path, mav.true_state)  # plot path and MAV
-    data_view.update(mav.true_state, # true states
+    path_view.update(path, mav.msg_true_state)  # plot path and MAV
+    data_view.update(mav.msg_true_state, # true states
                      estimated_state, # estimated states
                      commanded_state, # commanded states
                      SIM.ts_simulation)
@@ -81,7 +81,3 @@ while sim_time < SIM.end_time:
     sim_time += SIM.ts_simulation
 
 if VIDEO == True: video.close()
-
-
-
-
