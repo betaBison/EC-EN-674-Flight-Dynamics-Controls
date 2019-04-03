@@ -12,7 +12,7 @@ class path_follower:
     def __init__(self):
         self.chi_inf = np.radians(45.0)  # approach angle for large distance from straight-line path
         self.k_path = 0.02  # proportional gain for straight-line path following
-        self.k_orbit = 1.5  # proportional gain for orbit following
+        self.k_orbit = 5.0  # proportional gain for orbit following
         self.gravity = P.gravity
         self.autopilot_commands = msg_autopilot()  # message sent to autopilot
         self.Va = TR.Va
@@ -48,7 +48,7 @@ class path_follower:
         self.autopilot_commands.altitude_command = hd
 
         # feed forward same as chi desired
-        self.autopilot_commands.phi_feedforward = chi_d
+        self.autopilot_commands.phi_feedforward = 0.
 
     def _follow_orbit(self, path, state):
         self.autopilot_commands.airspeed_command = self.Va
@@ -68,7 +68,13 @@ class path_follower:
         chi_c = phi + lamb*(np.pi/2. + atan(self.k_orbit*((d-rho)/rho)))
         self.autopilot_commands.course_command = chi_c
         wind_down = 0.
-        vg_sqrd = ((state.wn*cos(state.chi)+state.we*sin(state.chi))+np.sqrt(state.Va**2-(state.wn*sin(state.chi)-state.we*cos(state.chi))**2-(wind_down)**2))**2
+        part_a = state.Va**2
+        part_b = (state.wn*sin(state.chi)-state.we*cos(state.chi))**2+(wind_down)**2
+        if part_a >= part_b:
+            stuff = part_a - part_b
+        else:
+            stuff = 0.0
+        vg_sqrd = (state.wn*cos(state.chi)+state.we*sin(state.chi)+np.sqrt(stuff))**2
         if state.Va == 0:
             state.Va = self.Va
         denom = self.gravity*rho*np.sqrt((state.Va**2-(state.wn*sin(state.chi)-state.we*cos(state.chi))**2-(wind_down)**2)/(state.Va**2-wind_down**2))

@@ -60,7 +60,7 @@ class autopilot:
         # lateral autopilot
         #updated_course_command = self.chooseChiCommand(cmd.course_command,state.chi)
         chi_c = wrap(cmd.course_command,state.chi)
-        phi_c = self.course_from_roll.update(chi_c,state.chi)
+        phi_c = self.course_from_roll.update(chi_c,state.chi) + cmd.phi_feedforward
         delta_a = self.roll_from_aileron.update(phi_c,state.phi,state.p)
         delta_r = self.yaw_damper.update(state.r)
 
