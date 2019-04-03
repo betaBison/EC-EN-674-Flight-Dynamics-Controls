@@ -1,7 +1,7 @@
 """
 msg_path
     - messages type for input to path follower
-    
+
 part of mavsim_python
     - Beard & McLain, PUP, 2012
     - Last update:
@@ -12,7 +12,7 @@ import numpy as np
 class msg_path:
     def __init__(self):
         # flag='line' means straight line following, flag='orbit' means orbit following
-        self.flag = 'line'
+        self.type = 'line'
         # desired airspeed along the path
         self.airspeed = 25
         # origin of the straight path line (r)
@@ -25,3 +25,5 @@ class msg_path:
         self.orbit_radius = 50
         # orbit direction: 'CW'==clockwise, 'CCW'==counter clockwise
         self.orbit_direction = 'CW'
+        # this flag is set for one time step to signal a redraw in the viewer
+        self.flag_path_changed = True

@@ -38,12 +38,12 @@ path_follow = path_follower()
 from message_types.msg_path import msg_path
 path = msg_path()
 #path.flag = 'line'
-path.flag = 'orbit'
-if path.flag == 'line':
+path.type = 'line'
+if path.type == 'line':
     path.line_origin = np.array([[0.0, 0.0, -100.0]]).T
     path.line_direction = np.array([[0.5, 1.0, 0.0]]).T
     path.line_direction = path.line_direction / np.linalg.norm(path.line_direction)
-else:  # path.flag == 'orbit'
+else:  # path.type == 'orbit'
     path.orbit_center = np.array([[0.0, 0.0, -100.0]]).T  # center of the orbit
     path.orbit_radius = 300.0  # radius of the orbit
     path.orbit_direction = 'CW'  # orbit direction: 'CW'==clockwise, 'CCW'==counter clockwise
