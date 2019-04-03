@@ -13,7 +13,7 @@ import pyqtgraph.opengl as gl
 import pyqtgraph.Vector as Vector
 from PyQt5 import QtWidgets
 
-from tools.rotations import Euler2Rotation
+from tools.tools import RotationBody2Vehicle
 from chap11.dubins_parameters import dubins_parameters
 
 class waypoint_viewer():
@@ -80,7 +80,7 @@ class waypoint_viewer():
         """
         mav_position = np.array([[state.pn], [state.pe], [-state.h]])  # NED coordinates
         # attitude of mav as a rotation matrix R from body to inertial
-        R = Euler2Rotation(state.phi, state.theta, state.psi)
+        R = RotationBody2Vehicle(state.phi, state.theta, state.psi)
         # rotate and translate points defining mav
         rotated_points = self.rotate_points(self.mav_points, R)
         translated_points = self.translate_points(rotated_points, mav_position)
@@ -94,10 +94,23 @@ class waypoint_viewer():
             # initialize drawing of triangular mesh.
             self.mav_body = gl.GLMeshItem(vertexes=mesh,  # defines the triangular mesh (Nx3x3)
                                   vertexColors=self.mav_meshColors,  # defines mesh colors (Nx1)
-                                  drawEdges=True,  # draw edges between mesh elements
+                                  drawEdges=False,  # draw edges between mesh elements
                                   smooth=False,  # speeds up rendering
                                   computeNormals=False)  # speeds up rendering
             self.window.addItem(self.mav_body)  # add body to plot
+            axis_length = 220.0
+            naxis_pts = np.array([[0.0,0.0,0.0],
+                            [0.0,axis_length,0.0]])
+            naxis = gl.GLLinePlotItem(pos=naxis_pts,color=pg.glColor('r'),width=3.0)
+            self.window.addItem(naxis)
+            eaxis_pts = np.array([[0.0,0.0,0.0],
+                            [axis_length,0.0,0.0]])
+            eaxis = gl.GLLinePlotItem(pos=eaxis_pts,color=pg.glColor('g'),width=3.0)
+            self.window.addItem(eaxis)
+            daxis_pts = np.array([[0.0,0.0,0.0],
+                            [0.0,0.0,-axis_length]])
+            daxis = gl.GLLinePlotItem(pos=daxis_pts,color=pg.glColor('b'),width=3.0)
+            self.window.addItem(daxis)
         else:
             # draw MAV by resetting mesh using rotated and translated points
             self.mav_body.setMeshData(vertexes=mesh, vertexColors=self.mav_meshColors)

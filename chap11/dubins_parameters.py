@@ -1,9 +1,9 @@
 # dubins_parameters
 #   - Dubins parameters that define path between two configurations
 #
-# mavsim_matlab 
+# mavsim_matlab
 #     - Beard & McLain, PUP, 2012
-#     - Update history:  
+#     - Update history:
 #         3/26/2019 - RWB
 
 import numpy as np
@@ -35,21 +35,21 @@ class dubins_parameters:
             print('Error in Dubins Parameters: The distance between nodes must be larger than 2R.')
         else:
 
-            self.p_s =
-            self.chi_s =
-            self.p_e =
-            self.chi_e =
-            self.radius =
-            self.length =
-            self.center_s =
-            self.dir_s =
-            self.center_e =
-            self.dir_e =
-            self.r1 =
-            self.n1 =
-            self.r2 =
-            self.r3 =
-            self.n3 =
+            self.p_s = 0
+            self.chi_s = 0
+            self.p_e = 0
+            self.chi_e = 0
+            self.radius = 0
+            self.length = 0
+            self.center_s = 0
+            self.dir_s = 0
+            self.center_e = 0
+            self.dir_e = 0
+            self.r1 = 0
+            self.n1 = 0
+            self.r2 = 0
+            self.r3 = 0
+            self.n3 = 0
 
 
 def rotz(theta):
@@ -65,5 +65,3 @@ def mod(x):
     while x > 2*np.pi:
         x -= 2*np.pi
     return x
-
-

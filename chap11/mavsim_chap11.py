@@ -14,7 +14,7 @@ from chap3.data_viewer import data_viewer
 from chap4.wind_simulation import wind_simulation
 from chap6.autopilot import autopilot
 from chap7.mav_dynamics import mav_dynamics
-from chap8.observer import observer
+from chap8.observer_ekf import observer
 from chap10.path_follower import path_follower
 from chap11.path_manager import path_manager
 from chap11.waypoint_viewer import waypoint_viewer
@@ -46,10 +46,10 @@ waypoints.type = 'straight_line'
 waypoints.num_waypoints = 4
 Va = PLAN.Va0
 waypoints.ned[:, 0:waypoints.num_waypoints] \
-    = np.array([[0, 0, -100],
-                [1000, 0, -100],
-                [0, 1000, -100],
-                [1000, 1000, -100]]).T
+    = np.array([[0.0, 0.0, -100.],
+                [1000., 0.0, -100.],
+                [0.0, 1000., -100.],
+                [1000., 1000., -100.]]).T
 waypoints.airspeed[:, 0:waypoints.num_waypoints] \
     = np.array([[Va, Va, Va, Va]])
 waypoints.course[:, 0:waypoints.num_waypoints] \
@@ -65,25 +65,28 @@ sim_time = SIM.start_time
 print("Press Command-Q to exit...")
 while sim_time < SIM.end_time:
     #-------observer-------------
-    measurements = mav.sensors()  # get sensor measurements
+    measurements = mav.sensors  # get sensor measurements
     estimated_state = obsv.update(measurements)  # estimate states from measurements
 
     #-------path manager-------------
     path = path_manage.update(waypoints, PLAN.R_min, estimated_state)
+    #path = path_manage.update(waypoints, PLAN.R_min, mav.msg_true_state)
 
     #-------path follower-------------
     autopilot_commands = path_follow.update(path, estimated_state)
+    #autopilot_commands = path_follow.update(path, mav.msg_true_state)
 
     #-------controller-------------
     delta, commanded_state = ctrl.update(autopilot_commands, estimated_state)
+    #delta, commanded_state = ctrl.update(autopilot_commands, mav.msg_true_state)
 
     #-------physical system-------------
     current_wind = wind.update()  # get the new wind vector
     mav.update(delta, current_wind)  # propagate the MAV dynamics
 
     #-------update viewer-------------
-    waypoint_view.update(waypoints, path, mav.true_state)  # plot path and MAV
-    data_view.update(mav.true_state, # true states
+    waypoint_view.update(waypoints, path, mav.msg_true_state)  # plot path and MAV
+    data_view.update(mav.msg_true_state, # true states
                      estimated_state, # estimated states
                      commanded_state, # commanded states
                      SIM.ts_simulation)

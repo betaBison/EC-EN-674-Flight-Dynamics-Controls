@@ -23,25 +23,28 @@ class path_manager:
         self.dubins_path = dubins_parameters()
 
     def update(self, waypoints, radius, state):
-        def update(self, waypoints, radius, state):
-            # this flag is set for one time step to signal a redraw in the viewer
-            if self.path.flag_path_changed == True:
-                self.path.flag_path_changed = False
-            if waypoints.num_waypoints == 0:
-                waypoints.flag_manager_requests_waypoints = True
+        # this flag is set for one time step to signal a redraw in the viewer
+        if self.path.flag_path_changed == True:
+            self.path.flag_path_changed = False
+        if waypoints.num_waypoints == 0:
+            waypoints.flag_manager_requests_waypoints = True
+        else:
+            if waypoints.type == 'straight_line':
+                self.line_manager(waypoints, state)
+            elif waypoints.type == 'fillet':
+                self.fillet_manager(waypoints, radius, state)
+            elif waypoints.type == 'dubins':
+                self.dubins_manager(waypoints, radius, state)
             else:
-                if waypoints.type == 'straight_line':
-                    self.line_manager(waypoints, state)
-                elif waypoints.type == 'fillet':
-                    self.fillet_manager(waypoints, radius, state)
-                elif waypoints.type == 'dubins':
-                    self.dubins_manager(waypoints, radius, state)
-                else:
-                    print('Error in Path Manager: Undefined waypoint type.')
-            return self.path
+                print('Error in Path Manager: Undefined waypoint type.')
+        return self.path
 
     def line_manager(self, waypoints, state):
-        pass
+        self.path.type = 'line'
+        self.path.line_origin = np.array([waypoints.ned[:,self.ptr_previous]]).T
+        diff = waypoints.ned[:,self.ptr_current] - waypoints.ned[:,self.ptr_previous]
+        self.path.line_direction = np.array([diff/np.linalg.norm(diff)]).T
+
 
     def fillet_manager(self, waypoints, radius, state):
         pass
