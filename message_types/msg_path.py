@@ -23,7 +23,7 @@ class msg_path:
         self.orbit_center = np.array([[0.0, 0.0, 0.0]]).T
         # radius of the orbit (rho)
         self.orbit_radius = 50
-        # orbit direction: 'CW'==clockwise, 'CCW'==counter clockwise
+        # orbit direction: 'CW'==clockwise==1, 'CCW'==counter clockwise==-1
         self.orbit_direction = 'CW'
         # this flag is set for one time step to signal a redraw in the viewer
         self.flag_path_changed = True

@@ -40,8 +40,8 @@ path_manage = path_manager()
 # waypoint definition
 from message_types.msg_waypoints import msg_waypoints
 waypoints = msg_waypoints()
-waypoints.type = 'straight_line'
-#waypoints.type = 'fillet'
+#waypoints.type = 'straight_line'
+waypoints.type = 'fillet'
 #waypoints.type = 'dubins'
 waypoints.num_waypoints = 4
 Va = PLAN.Va0
@@ -69,16 +69,16 @@ while sim_time < SIM.end_time:
     estimated_state = obsv.update(measurements)  # estimate states from measurements
 
     #-------path manager-------------
-    path = path_manage.update(waypoints, PLAN.R_min, estimated_state)
-    #path = path_manage.update(waypoints, PLAN.R_min, mav.msg_true_state)
+    #path = path_manage.update(waypoints, PLAN.R_min, estimated_state)
+    path = path_manage.update(waypoints, PLAN.R_min, mav.msg_true_state)
 
     #-------path follower-------------
-    autopilot_commands = path_follow.update(path, estimated_state)
-    #autopilot_commands = path_follow.update(path, mav.msg_true_state)
+    #autopilot_commands = path_follow.update(path, estimated_state)
+    autopilot_commands = path_follow.update(path, mav.msg_true_state)
 
     #-------controller-------------
-    delta, commanded_state = ctrl.update(autopilot_commands, estimated_state)
-    #delta, commanded_state = ctrl.update(autopilot_commands, mav.msg_true_state)
+    #delta, commanded_state = ctrl.update(autopilot_commands, estimated_state)
+    delta, commanded_state = ctrl.update(autopilot_commands, mav.msg_true_state)
 
     #-------physical system-------------
     current_wind = wind.update()  # get the new wind vector
