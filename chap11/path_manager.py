@@ -40,6 +40,33 @@ class path_manager:
         return self.path
 
     def line_manager(self, waypoints, state):
+        wi_prev = np.array(waypoints.ned[:,self.ptr_previous])
+        wi_cur = np.array(waypoints.ned[:,self.ptr_current])
+        wi_next = np.array(waypoints.ned[:,self.ptr_next])
+        self.halfspace_r = wi_cur
+
+
+        qi_prev = (wi_cur - wi_prev)/np.linalg.norm(wi_cur - wi_prev)
+        qi_cur = (wi_next - wi_cur)/np.linalg.norm(wi_next - wi_cur)
+        ni = (qi_prev - qi_cur)/np.linalg.norm(qi_prev - qi_cur)
+        self.halfspace_n = ni
+
+        # go to the next path if you're in the half space
+        if self.inHalfSpace(np.array([state.pn,state.pe,-state.h])):
+            self.path.flag_path_changed = True
+            self.ptr_previous += 1
+            # wrap to start if reach the end
+            if self.ptr_previous == waypoints.num_waypoints:
+                self.ptr_previous -= waypoints.num_waypoints
+            self.ptr_current += 1
+            # wrap to start if reach the end
+            if self.ptr_current == waypoints.num_waypoints:
+                self.ptr_current -= waypoints.num_waypoints
+            self.ptr_next += 1
+            # wrap to start if reach the end
+            if self.ptr_next == waypoints.num_waypoints:
+                self.ptr_next -= waypoints.num_waypoints
+
         self.path.type = 'line'
         self.path.line_origin = np.array([waypoints.ned[:,self.ptr_previous]]).T
         diff = waypoints.ned[:,self.ptr_current] - waypoints.ned[:,self.ptr_previous]
