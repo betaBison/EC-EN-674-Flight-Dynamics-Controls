@@ -106,7 +106,7 @@ class dubins_parameters:
                 self.r2 = self.center_e + R*rotz(np.pi/2.) @ self.n1
 
             self.r3 = pe
-            self.n3 = rotz(chie)*e1
+            self.n3 = rotz(chie) @ e1
             # input parameters for graphing use
             self.p_s = ps
             self.chi_s = chis

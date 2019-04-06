@@ -229,8 +229,6 @@ class waypoint_viewer():
         return points
 
     def drawWaypoints(self, waypoints, radius):
-        blue = np.array([[0., 0., 1., 1.]])
-        blue = np.array([[30, 144, 255, 255]])/255.
         if waypoints.type=='straight_line' or waypoints.type=='fillet':
             points = self.straight_waypoint_points(waypoints)
         elif waypoints.type=='dubins':
@@ -308,7 +306,6 @@ class waypoint_viewer():
                                        (1 - sig) * self.dubins_path.r1.item(2) + sig * self.dubins_path.r2.item(2)]])
                 points = np.concatenate((points, new_point), axis=0)
                 sig += Del
-
             # points along end circle
             th2 = np.arctan2(self.dubins_path.p_e.item(1) - self.dubins_path.center_e.item(1),
                              self.dubins_path.p_e.item(0) - self.dubins_path.center_e.item(0))

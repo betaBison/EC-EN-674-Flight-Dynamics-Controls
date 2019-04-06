@@ -11,7 +11,7 @@ import parameters.control_parameters as AP
 from chap6.pid_control import pi_control, pd_control_with_rate
 from message_types.msg_state import msg_state
 from tools.transfer_function import transfer_function
-from tools.tools import wrap
+from tools.tools import wrap, wrapAnglePi2Pi
 
 
 class autopilot:
@@ -60,7 +60,7 @@ class autopilot:
         # lateral autopilot
         #updated_course_command = self.chooseChiCommand(cmd.course_command,state.chi)
         chi_c = wrap(cmd.course_command,state.chi)
-        phi_c = self.course_from_roll.update(chi_c,state.chi) + cmd.phi_feedforward
+        phi_c = wrapAnglePi2Pi(self.course_from_roll.update(chi_c,state.chi) + cmd.phi_feedforward)
         delta_a = self.roll_from_aileron.update(phi_c,state.phi,state.p)
         delta_r = self.yaw_damper.update(state.r)
 

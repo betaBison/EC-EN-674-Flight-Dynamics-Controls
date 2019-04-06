@@ -11,7 +11,7 @@ import parameters.aerosonde_parameters as P
 class path_follower:
     def __init__(self):
         self.chi_inf = np.radians(45.0)  # approach angle for large distance from straight-line path
-        self.k_path = 0.02  # proportional gain for straight-line path following
+        self.k_path = 0.05  # proportional gain for straight-line path following
         self.k_orbit = 5.0  # proportional gain for orbit following
         self.gravity = P.gravity
         self.autopilot_commands = msg_autopilot()  # message sent to autopilot
@@ -53,7 +53,6 @@ class path_follower:
     def _follow_orbit(self, path, state):
         self.autopilot_commands.airspeed_command = self.Va
         self.autopilot_commands.altitude_command = -path.orbit_center.item(2)
-
         # course angle command
         d = np.sqrt((state.pn-path.orbit_center.item(0))**2+(state.pe-path.orbit_center.item(1))**2)
         phi = atan2((state.pe-path.orbit_center.item(1)),(state.pn-path.orbit_center.item(0)))
