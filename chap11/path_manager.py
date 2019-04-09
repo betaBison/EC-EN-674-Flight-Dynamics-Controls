@@ -68,9 +68,9 @@ class path_manager:
 
 
     def fillet_manager(self, waypoints, radius, state):
-        wi_prev = np.array(waypoints.ned[:,self.ptr_previous])
-        wi_cur = np.array(waypoints.ned[:,self.ptr_current])
-        wi_next = np.array(waypoints.ned[:,self.ptr_next])
+        wi_prev = np.array([waypoints.ned[:,self.ptr_previous]]).T
+        wi_cur = np.array([waypoints.ned[:,self.ptr_current]]).T
+        wi_next = np.array([waypoints.ned[:,self.ptr_next]]).T
 
         qi_prev = (wi_cur - wi_prev)/np.linalg.norm(wi_cur - wi_prev)
         qi_cur = (wi_next - wi_cur)/np.linalg.norm(wi_next - wi_cur)
@@ -81,13 +81,13 @@ class path_manager:
             self.path.line_direction = np.array([diff/np.linalg.norm(diff)]).T
             self.halfspace_r = wi_cur - (self.R/np.tan(rose/2.))*qi_prev
             self.halfspace_n = qi_prev
-            if self.inHalfSpace(np.array([state.pn,state.pe,-state.h])):
-                print("change to orbit")
+            if self.inHalfSpace(np.array([[state.pn,state.pe,-state.h]]).T):
+                #print("change to orbit")
                 self.manager_state = 2
                 self.path.flag_path_changed = True
             self.halfspace_r = wi_cur + (self.R/np.tan(rose/2.))*qi_cur
             self.halfspace_n = qi_cur
-            if self.inHalfSpace(np.array([state.pn,state.pe,-state.h])):
+            if self.inHalfSpace(np.array([[state.pn,state.pe,-state.h]]).T):
                 self.attempt = False
             else:
                 self.attempt = True
@@ -96,15 +96,12 @@ class path_manager:
             self.path.orbit_center = wi_cur - (self.R/np.sin(rose/2.))*ni
             self.path.orbit_radius = self.R
             lamb = np.sign(qi_prev.item(0)*qi_cur.item(1)-qi_prev.item(1)*qi_cur.item(0))
-            if lamb == 1:
-                self.path.orbit_direction == 'CW'
-            else:
-                self.path.orbit_direction == 'CCW'
+            self.path.orbit_direction = self.convertDirection(lamb)
             self.halfspace_r = wi_cur + (self.R/np.tan(rose/2.))*qi_cur
             self.halfspace_n = qi_cur
-            if self.inHalfSpace(np.array([state.pn,state.pe,-state.h])):
+            if self.inHalfSpace(np.array([[state.pn,state.pe,-state.h]]).T):
                 if self.attempt:
-                    print("change to line")
+                    #print("change to line")
 
                     self.recalculate = True
                     self.increment_pointers()
@@ -132,10 +129,7 @@ class path_manager:
             self.path.orbit_center = wi_cur - (self.R/np.sin(rose/2.))*ni
             self.path.orbit_radius = self.R
             lamb = np.sign(qi_prev.item(0)*qi_cur.item(1)-qi_prev.item(1)*qi_cur.item(0))
-            if lamb == 1:
-                self.path.orbit_direction == 'CW'
-            else:
-                self.path.orbit_direction == 'CCW'
+            self.path.orbit_direction = self.convertDirection(lamb)
 
     def dubins_manager(self, waypoints, radius, state):
         ps = np.array([waypoints.ned[:,self.ptr_previous]]).T
@@ -218,8 +212,6 @@ class path_manager:
             self.ptr_next -= self.num_waypoints
 
     def inHalfSpace(self, pos):
-        #print("n=",self.halfspace_n)
-        #print("r=",self.halfspace_r)
         if (pos-self.halfspace_r).T @ self.halfspace_n >= 0:
             return True
         else:
