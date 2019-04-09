@@ -27,15 +27,15 @@ class msg_map:
 
 
 
-            spots = np.linspace(-PLAN.city_width/2.0+self.building_width,PLAN.city_width/2.0-2.*self.building_width,int(PLAN.city_width/(2.5*self.building_width)))
-            # an array of the north corner of buildings
+            spots = np.linspace(-PLAN.city_width/2.0+2.0*self.building_width,PLAN.city_width/2.0-2.0*self.building_width,int(PLAN.city_width/(2.5*self.building_width)))
+            # an array of the north center of buildings
             self.building_north = np.zeros((PLAN.num_blocks,PLAN.num_blocks))
             for ii in range(PLAN.num_blocks):
                 np.random.shuffle(spots)
                 for jj in range(0, PLAN.num_blocks):
                     self.building_north[ii,jj] = spots[jj]
 
-            # an array of the east corner of buildings
+            # an array of the east center of buildings
             self.building_east = np.zeros((PLAN.num_blocks,PLAN.num_blocks))
             for ii in range(PLAN.num_blocks):
                 np.random.shuffle(spots)

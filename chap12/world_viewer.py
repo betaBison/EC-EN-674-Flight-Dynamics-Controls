@@ -17,7 +17,7 @@ from tools.tools import RotationBody2Vehicle
 from chap11.dubins_parameters import dubins_parameters
 
 class world_viewer():
-    def __init__(self):
+    def __init__(self,voronoi = None):
         self.scale = 4000
         # initialize Qt gui application and window
         self.app = pg.QtGui.QApplication([])  # initialize QT
@@ -39,6 +39,18 @@ class world_viewer():
         # dubins path parameters
         self.dubins_path = dubins_parameters()
         self.mav_body = []
+
+        if voronoi != None:
+            self.voronoi = voronoi
+            vm_all_pts = self.voronoi.E_inf
+            self.vm_all = gl.GLLinePlotItem(pos=vm_all_pts,color=pg.glColor('w'),width=1.0,mode='lines')
+            self.window.addItem(self.vm_all)
+            vm_pts = self.voronoi.E
+            self.vm = gl.GLLinePlotItem(pos=vm_pts,color=pg.glColor('y'),width=1.0,mode='lines')
+            self.window.addItem(self.vm)
+            #vm_path_pts = self.voronoi.path_pts
+            #self.vm_path = gl.GLLinePlotItem(pos=vm_path_pts,color=pg.glColor('m'),width=4.0,mode='lines')
+            #self.window.addItem(self.vm_path)
 
     ###################################
     # public functions
@@ -236,10 +248,10 @@ class world_viewer():
         elif waypoints.type=='dubins':
             points = self.dubins_points(waypoints, radius, 0.1)
         if not self.plot_initialized:
-            waypoint_color = pg.glColor('b')
+            waypoint_color = pg.glColor('m')
             self.waypoints = gl.GLLinePlotItem(pos=points,
                                                color=waypoint_color,
-                                               width=2,
+                                               width=4,
                                                antialias=True,
                                                mode='line_strip')
             self.window.addItem(self.waypoints)
