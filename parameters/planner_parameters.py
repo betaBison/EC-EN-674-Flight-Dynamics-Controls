@@ -23,4 +23,4 @@ building_height = 300;   # maximum height of buildings
 #building_height = 1;   # maximum height of buildings (for camera)
 num_blocks      = 5;    # number of blocks in city
 street_width    = .8;   # percent of block that is street.
-P.map = createWorld(city_width, building_height, num_blocks, street_width);
+#P.map = createWorld(city_width, building_height, num_blocks, street_width);

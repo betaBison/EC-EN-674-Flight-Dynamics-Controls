@@ -8,6 +8,7 @@ import numpy as np
 import sys
 sys.path.append('..')
 from message_types.msg_waypoints import msg_waypoints
+import parameters.planner_parameters as PLAN
 
 class path_planner:
     def __init__(self):
@@ -34,12 +35,12 @@ class path_planner:
         elif planner_flag == 2:
             self.waypoints.type = 'dubins'
             self.waypoints.num_waypoints = 4
-            Va = 25
+            Va = PLAN.Va0
             self.waypoints.ned[:, 0:self.waypoints.num_waypoints] \
-                = np.array([[0, 0, -100],
-                            [1000, 0, -100],
-                            [0, 1000, -100],
-                            [1000, 1000, -100]]).T
+                = np.array([[0.0, 0.0, -100.],
+                            [1000., 0.0, -100.],
+                            [0.0, 1000., -100.],
+                            [1000., 1000., -100.]]).T
             self.waypoints.airspeed[:, 0:self.waypoints.num_waypoints] \
                 = np.array([[Va, Va, Va, Va]])
             self.waypoints.course[:, 0:self.waypoints.num_waypoints] \
