@@ -2,13 +2,14 @@ import sys
 sys.path.append('..')
 import numpy as np
 from tools.tools import Euler2Quaternion
+import parameters.simulation_parameters as SP
 
 ######################################################################################
                 #   Initial Conditions
 ######################################################################################
 #   Initial conditions for MAV
-pn0 = 0.  # initial north position
-pe0 = 0.  # initial east position
+pn0 = -SP.city_width/2.0 #0.  # initial north position
+pe0 = -SP.city_width/2.0 #0.  # initial east position
 pd0 = -100.0  # initial down position
 u0 = 25.  # initial velocity along body x-axis
 v0 = 0.  # initial velocity along body y-axis

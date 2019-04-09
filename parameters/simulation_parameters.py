@@ -12,3 +12,5 @@ end_time = 500.  # end time for simulation
 ts_plotting = 0.5  # refresh rate for plots
 
 ts_control = ts_simulation  # sample rate for the controller
+
+city_width = 4000

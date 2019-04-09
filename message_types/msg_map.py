@@ -16,16 +16,28 @@ class msg_map:
             # number of blocks in city
             self.num_city_blocks = PLAN.num_blocks
             # percent of block that is street.
-            self.street_width = PLAN.city_width/PLAN.num_blocks*PLAN.street_width
+            #self.street_width = 200.0#PLAN.city_width/PLAN.num_blocks*PLAN.street_width
             # maximum height of buildings
             self.building_max_height = PLAN.building_height
             # an array of building heights
             self.building_height = PLAN.building_height * np.random.rand(PLAN.num_blocks, PLAN.num_blocks)
             # the width of the buildings (all the same)
-            self.building_width = PLAN.city_width/PLAN.num_blocks * (1-PLAN.street_width)
+            self.building_width = 100.0 #PLAN.city_width/PLAN.num_blocks * (1-PLAN.street_width)
+
+
+
+
+            spots = np.linspace(-PLAN.city_width/2.0+self.building_width,PLAN.city_width/2.0-2.*self.building_width,int(PLAN.city_width/(2.5*self.building_width)))
             # an array of the north corner of buildings
-            self.building_north = np.zeros(PLAN.num_blocks)
-            for i in range(0, PLAN.num_blocks):
-                self.building_north[i] = 0.5*PLAN.city_width/PLAN.num_blocks*(2*(i)+1)
+            self.building_north = np.zeros((PLAN.num_blocks,PLAN.num_blocks))
+            for ii in range(PLAN.num_blocks):
+                np.random.shuffle(spots)
+                for jj in range(0, PLAN.num_blocks):
+                    self.building_north[ii,jj] = spots[jj]
+
             # an array of the east corner of buildings
-            self.building_east = self.building_north
+            self.building_east = np.zeros((PLAN.num_blocks,PLAN.num_blocks))
+            for ii in range(PLAN.num_blocks):
+                np.random.shuffle(spots)
+                for jj in range(0, PLAN.num_blocks):
+                    self.building_east[ii,jj] = spots[jj]

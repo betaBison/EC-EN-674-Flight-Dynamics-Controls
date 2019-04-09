@@ -349,17 +349,17 @@ class world_viewer():
         # draw map of the world: buildings
         fullMesh = np.array([], dtype=np.float32).reshape(0,3,3)
         fullMeshColors = np.array([], dtype=np.float32).reshape(0,3,4)
-        for i in range(0, map.num_city_blocks):
-            for j in range (0, map.num_city_blocks):
-                mesh, meshColors = self.buildingVertFace(map.building_north[i],
-                                                      map.building_east[j],
+        for ii in range(0, map.num_city_blocks):
+            for jj in range (0, map.num_city_blocks):
+                mesh, meshColors = self.buildingVertFace(map.building_north[ii,jj],
+                                                      map.building_east[ii,jj],
                                                       map.building_width,
-                                                      map.building_height[j, i])
+                                                      map.building_height[ii, jj])
                 fullMesh = np.concatenate((fullMesh, mesh), axis=0)
                 fullMeshColors = np.concatenate((fullMeshColors, meshColors), axis=0)
         self.map = gl.GLMeshItem(vertexes= fullMesh,  # defines the triangular mesh (Nx3x3)
                       vertexColors= fullMeshColors,  # defines mesh colors (Nx1)
-                      drawEdges=True,  # draw edges between mesh elements
+                      drawEdges=False,  # draw edges between mesh elements
                       smooth=False,  # speeds up rendering
                       computeNormals=False)  # speeds up rendering
         self.window.addItem(self.map)
@@ -391,17 +391,19 @@ class world_viewer():
         green = np.array([0., 1., 0., 1])
         blue = np.array([0., 0., 1., 1])
         yellow = np.array([1., 1., 0., 1])
+        grey = np.array([0.6, 0.6, 0.6, 1])
+        light_grey = np.array([0.9, 0.9, 0.9, 1])
         meshColors = np.empty((10, 3, 4), dtype=np.float32)
-        meshColors[0] = green
-        meshColors[1] = green
-        meshColors[2] = green
-        meshColors[3] = green
-        meshColors[4] = green
-        meshColors[5] = green
-        meshColors[6] = green
-        meshColors[7] = green
-        meshColors[8] = yellow
-        meshColors[9] = yellow
+        meshColors[0] = grey
+        meshColors[1] = grey
+        meshColors[2] = grey
+        meshColors[3] = grey
+        meshColors[4] = grey
+        meshColors[5] = grey
+        meshColors[6] = grey
+        meshColors[7] = grey
+        meshColors[8] = light_grey
+        meshColors[9] = light_grey
         return mesh, meshColors
 
 

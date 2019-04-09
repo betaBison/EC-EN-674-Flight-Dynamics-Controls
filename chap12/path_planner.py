@@ -9,6 +9,8 @@ import sys
 sys.path.append('..')
 from message_types.msg_waypoints import msg_waypoints
 import parameters.planner_parameters as PLAN
+import parameters.aerosonde_parameters as P
+
 
 class path_planner:
     def __init__(self):
@@ -26,7 +28,7 @@ class path_planner:
             self.waypoints.num_waypoints = 4
             Va = 25
             self.waypoints.ned[:, 0:self.waypoints.num_waypoints] \
-                = np.array([[0, 0, -100],
+                = np.array([[P.pn0, P.pe0, P.pd0],
                             [1000, 0, -100],
                             [0, 1000, -100],
                             [1000, 1000, -100]]).T
@@ -37,7 +39,7 @@ class path_planner:
             self.waypoints.num_waypoints = 4
             Va = PLAN.Va0
             self.waypoints.ned[:, 0:self.waypoints.num_waypoints] \
-                = np.array([[0.0, 0.0, -100.],
+                = np.array([[P.pn0, P.pe0, P.pd0],
                             [1000., 0.0, -100.],
                             [0.0, 1000., -100.],
                             [1000., 1000., -100.]]).T
