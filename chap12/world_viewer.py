@@ -17,7 +17,7 @@ from tools.tools import RotationBody2Vehicle
 from chap11.dubins_parameters import dubins_parameters
 
 class world_viewer():
-    def __init__(self,voronoi = None):
+    def __init__(self,map,voronoi = None):
         self.scale = 4000
         # initialize Qt gui application and window
         self.app = pg.QtGui.QApplication([])  # initialize QT
@@ -52,6 +52,11 @@ class world_viewer():
             #self.vm_path = gl.GLLinePlotItem(pos=vm_path_pts,color=pg.glColor('m'),width=4.0,mode='lines')
             #self.window.addItem(self.vm_path)
 
+        # draw map
+        self.drawMap(map)
+        self.initialized_RRT = False
+        #self.app.processEvents()
+
     ###################################
     # public functions
     def update(self, map, waypoints, path, state):
@@ -61,7 +66,6 @@ class world_viewer():
             self.drawMAV(state)
             self.drawWaypoints(waypoints, path.orbit_radius)
             self.drawPath(path)
-            self.drawMap(map)
             self.plot_initialized = True
 
         # else update drawing on all other calls to update()
@@ -77,6 +81,27 @@ class world_viewer():
         #self.window.opts['center'] = view_location
         # redraw
         self.app.processEvents()
+
+    def updateRRT(self,rrt_pts):
+        if not self.initialized_RRT:
+            """
+            vm_all_pts = self.voronoi.E_inf
+            self.vm_all = gl.GLLinePlotItem(pos=vm_all_pts,color=pg.glColor('w'),width=1.0,mode='lines')
+            self.w.addItem(self.vm_all)
+            """
+            rrt_color = pg.glColor('y')
+            self.rrt_line = gl.GLLinePlotItem(pos=rrt_pts,
+                                               color=rrt_color,
+                                               width=1,
+                                               antialias=True,
+                                               mode='lines')
+            self.window.addItem(self.rrt_line)
+            self.initialized_RRT = True
+        else:
+            self.rrt_line.setData(pos=rrt_pts)
+
+        self.app.processEvents()
+        pass
 
     def drawMAV(self, state):
         """
@@ -241,8 +266,6 @@ class world_viewer():
         return points
 
     def drawWaypoints(self, waypoints, radius):
-        blue = np.array([[0., 0., 1., 1.]])
-        blue = np.array([[30, 144, 255, 255]])/255.
         if waypoints.type=='straight_line' or waypoints.type=='fillet':
             points = self.straight_waypoint_points(waypoints)
         elif waypoints.type=='dubins':
