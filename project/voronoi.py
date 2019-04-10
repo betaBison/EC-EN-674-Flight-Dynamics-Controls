@@ -77,7 +77,7 @@ class Voronoi_Planner():
             self.E.append([[vor.vertices[int(closest[ii,1]),0], vor.vertices[int(closest[ii,1]),1]],[self.end[0][0],self.end[0][1]]])
         self.ridge.append([start_index,end_index])
         #self.E.append([[start[0][0],start[0][1]],[self.end[0][0],self.end[0][1]]])
-        self.E.append([[start[0][0],start[0][1]],[self.end[0][0],self.end[0][1]]])
+        self.E.append([[start[0][0],start[0][1]],[start[0][0],start[0][1]]])
         self.E = np.asarray(self.E)
 
 

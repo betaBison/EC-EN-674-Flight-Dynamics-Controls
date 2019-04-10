@@ -18,7 +18,6 @@ from chap8.observer_ekf import observer
 from chap10.path_follower import path_follower
 from chap11.path_manager import path_manager
 from chap12.world_viewer import world_viewer
-from chap12.path_planner import path_planner
 from project.voronoi import Voronoi_Planner
 from message_types.msg_map import msg_map
 
@@ -31,7 +30,6 @@ ctrl = autopilot(SIM.ts_simulation)
 obsv = observer(SIM.ts_simulation)
 path_follow = path_follower()
 path_manage = path_manager()
-path_plan = path_planner()
 map = msg_map(PLAN)
 voronoi = Voronoi_Planner(map)
 
@@ -40,7 +38,7 @@ waypoints = voronoi.plan()
 
 # initialize the visualization
 VIDEO = False  # True==write video, False==don't write video
-world_view = world_viewer(voronoi)  # initialize the viewer
+world_view = world_viewer(map,voronoi)  # initialize the viewer
 data_view = data_viewer()  # initialize view of data plots
 if VIDEO == True:
     from chap2.video_writer import video_writer
@@ -59,16 +57,16 @@ while sim_time < SIM.end_time:
     estimated_state = obsv.update(measurements)  # estimate states from measurements
 
     #-------path manager-------------
-    path = path_manage.update(waypoints, PLAN.R_min, estimated_state)
-    #path = path_manage.update(waypoints, PLAN.R_min, mav.msg_true_state)
+    #path = path_manage.update(waypoints, PLAN.R_min, estimated_state)
+    path = path_manage.update(waypoints, PLAN.R_min, mav.msg_true_state)
 
     #-------path follower-------------
-    autopilot_commands = path_follow.update(path, estimated_state)
-    #autopilot_commands = path_follow.update(path, mav.msg_true_state)
+    #autopilot_commands = path_follow.update(path, estimated_state)
+    autopilot_commands = path_follow.update(path, mav.msg_true_state)
 
     #-------controller-------------
-    delta, commanded_state = ctrl.update(autopilot_commands, estimated_state)
-    #delta, commanded_state = ctrl.update(autopilot_commands, mav.msg_true_state)
+    #delta, commanded_state = ctrl.update(autopilot_commands, estimated_state)
+    delta, commanded_state = ctrl.update(autopilot_commands, mav.msg_true_state)
 
     #-------physical system-------------
     current_wind = wind.update()  # get the new wind vector
