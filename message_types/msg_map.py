@@ -27,7 +27,7 @@ class msg_map:
 
 
 
-            spots = np.linspace(-PLAN.city_width/2.0+2.0*self.building_width,PLAN.city_width/2.0-2.0*self.building_width,int(PLAN.city_width/(2.5*self.building_width)))
+            spots = np.linspace(-PLAN.city_width/2.0+3.0*self.building_width,PLAN.city_width/2.0-3.0*self.building_width,int(PLAN.city_width/(2.5*self.building_width)))
             # an array of the north center of buildings
             self.building_north = np.zeros((PLAN.num_blocks,PLAN.num_blocks))
             for ii in range(PLAN.num_blocks):

@@ -13,7 +13,7 @@ size_waypoint_array = 100
 Va0 = MAV.u0
 
 # max possible roll angle
-phi_max = np.radians(20)
+phi_max = np.radians(45)
 
 # minimum turn radius
 R_min = Va0**2 / MAV.gravity / np.tan(phi_max)

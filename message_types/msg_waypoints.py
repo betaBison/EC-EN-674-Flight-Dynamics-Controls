@@ -1,7 +1,7 @@
 """
 msg_waypoints
     - messages type for input to path manager
-    
+
 part of mavsim_python
     - Beard & McLain, PUP, 2012
     - Last update:
@@ -26,7 +26,7 @@ class msg_waypoints:
         # self.type = 'fillet'
         # self.type = 'dubins'
         # maximum number of waypoints.  This is used to pre-allocate memory to improve efficiency
-        self.max_waypoints = 100
+        self.max_waypoints = 1000
         # current number of valid waypoints in memory
         self.num_waypoints = 0
         # [n, e, d] - coordinates of waypoints
@@ -34,7 +34,7 @@ class msg_waypoints:
         # the airspeed that is commanded along the waypoints
         self.airspeed = np.inf * np.ones((1, self.max_waypoints))
         # the desired course at each waypoint (used only for Dubins paths)
-        self.course = np.inf * np.ones((1, self.max_waypoints))
+        self.course =  np.ones((1, self.max_waypoints))
 
         # these last three variables are used by the path planner running cost at each node
         self.cost = np.inf * np.ones((1, self.max_waypoints))

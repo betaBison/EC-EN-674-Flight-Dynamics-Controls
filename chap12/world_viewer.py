@@ -55,11 +55,14 @@ class world_viewer():
         # draw map
         self.drawMap(map)
         self.initialized_RRT = False
+        self.RRT_iteration = 0
+        self.RRT_colors = [pg.glColor('y'),pg.glColor('g'),pg.glColor('m'),pg.glColor('w'),pg.glColor('r'),pg.glColor('b')]
+
         #self.app.processEvents()
 
     ###################################
     # public functions
-    def update(self, map, waypoints, path, state):
+    def update(self, waypoints, path, state):
 
         # initialize the drawing the first time update() is called
         if not self.plot_initialized:
@@ -82,14 +85,20 @@ class world_viewer():
         # redraw
         self.app.processEvents()
 
-    def updateRRT(self,rrt_pts):
+    def updateRRT(self,iteration,rrt_pts):
+        if iteration != self.RRT_iteration:
+            self.initialized_RRT = False
+            self.RRT_iteration = iteration
         if not self.initialized_RRT:
             """
             vm_all_pts = self.voronoi.E_inf
             self.vm_all = gl.GLLinePlotItem(pos=vm_all_pts,color=pg.glColor('w'),width=1.0,mode='lines')
             self.w.addItem(self.vm_all)
             """
-            rrt_color = pg.glColor('y')
+            # allows repeated colors
+            while iteration > len(self.RRT_colors)-1:
+                iteration -= len(self.RRT_colors)
+            rrt_color = self.RRT_colors[iteration]
             self.rrt_line = gl.GLLinePlotItem(pos=rrt_pts,
                                                color=rrt_color,
                                                width=1,

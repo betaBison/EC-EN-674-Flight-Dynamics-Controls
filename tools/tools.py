@@ -68,3 +68,11 @@ def wrapAnglePi2Pi(angle):
     else:
         output = angle
     return output
+
+def mod(x):
+    # make x between 0 and 2*pi
+    while x < 0:
+        x += 2*np.pi
+    while x > 2*np.pi:
+        x -= 2*np.pi
+    return x
