@@ -26,8 +26,8 @@ class path_planner:
         # this flag is set for one time step to signal a redraw in the viewer
         # planner_flag = 1  # return simple waypoint path
         #planner_flag = 2  # return dubins waypoint path
-        planner_flag = 3  # plan path through city using straight-line RRT
-        # planner_flag = 4  # plan path through city using dubins RRT
+        #planner_flag = 3  # plan path through city using straight-line RRT
+        planner_flag = 4  # plan path through city using dubins RRT
         if planner_flag == 1:
             self.waypoints.type = 'fillet'
             self.waypoints.num_waypoints = 4
@@ -67,11 +67,21 @@ class path_planner:
             else:
                 wpp_end = self.end
 
-            waypoints = self.rrt.planPath(wpp_start, wpp_end, self.map)
-            self.waypoints.ned = waypoints.ned
-            self.waypoints.airspeed = waypoints.airspeed
-            self.waypoints.num_waypoints = waypoints.num_waypoints
-        # elif planner_flag == 4:
+            self.waypoints = self.rrt.planStraightPath(wpp_start, wpp_end, self.map,self.waypoints)
+
+        elif planner_flag == 4:
+            self.waypoints.type = 'dubins'
+            # current configuration vector format: N, E, D, Va
+            wpp_start = np.array([state.pn,
+                                  state.pe,
+                                  -state.h])#,
+                                  #state.Va])
+            if np.linalg.norm(np.array([state.pn, state.pe, -state.h])-self.end) < 10.0:
+                wpp_end = self.start
+            else:
+                wpp_end = self.end
+
+            self.waypoints = self.rrt.planDubinsPath(wpp_start, wpp_end, self.map,self.waypoints,PLAN.R_min)
 
         else:
             print("Error in Path Planner: Undefined planner type.")
