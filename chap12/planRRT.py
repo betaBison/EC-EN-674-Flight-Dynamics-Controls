@@ -26,7 +26,7 @@ class planRRT():
         self.map_size = PLAN.city_width
         self.world_view = world_view
         self.pts = []
-        self.num_paths = 5
+        self.num_paths = 3
         self.path_options = []
         self.cost_options = []
 

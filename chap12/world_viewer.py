@@ -56,7 +56,7 @@ class world_viewer():
         self.drawMap(map)
         self.initialized_RRT = False
         self.RRT_iteration = 0
-        self.RRT_colors = [pg.glColor('y'),pg.glColor('g'),pg.glColor('m'),pg.glColor('w'),pg.glColor('r'),pg.glColor('b')]
+        self.RRT_colors = [pg.glColor('y'),pg.glColor('g'),pg.glColor('b'),pg.glColor('w'),pg.glColor('r'),pg.glColor('m')]
 
         #self.app.processEvents()
 
@@ -110,7 +110,6 @@ class world_viewer():
             self.rrt_line.setData(pos=rrt_pts)
 
         self.app.processEvents()
-        pass
 
     def drawMAV(self, state):
         """
