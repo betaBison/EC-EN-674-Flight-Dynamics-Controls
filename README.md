@@ -6,4 +6,4 @@ Reference: uavbook.byu.edu
 ![rrt example](docs/rrt.png)
 
 Youtube playlist implementing each chapter:
-https://www.youtube.com/playlist?list=PLrL_72-sw3evj3fqTjaUaMqqlqHX2OSmC
+https://www.youtube.com/playlist?list=PLa79EwlpK4ZMsxfw_ab-9_kLygiABV4_z
