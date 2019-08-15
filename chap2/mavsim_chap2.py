@@ -8,7 +8,7 @@ import sys
 sys.path.append('..')
 
 # import viewers and video writer
-from chap2.spacecraft_viewer import spacecraft_viewer
+#from chap2.spacecraft_viewer import spacecraft_viewer
 from chap2.mav_viewer import mav_viewer
 #from chap2.video_writer import video_writer
 
