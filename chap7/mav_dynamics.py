@@ -49,12 +49,13 @@ class mav_dynamics:
         # store wind data for fast recall since it is used at various points in simulation
         self._wind = np.array([[0.], [0.], [0.]])  # wind in NED frame in meters/sec
         #self.chi_prev = 0.
-        self._update_velocity_data()
+
         # store forces to avoid recalculation in the sensors function
         self._forces = np.array([[0.], [0.], [0.]])
         self._Va = MAV.u0
-        self._alpha = 0
-        self._beta = 0
+        self._alpha = 0.0
+        self._beta = 0.0
+        self._update_velocity_data()
 
         # initialize true_state message
         self.msg_true_state = msg_state()
@@ -190,6 +191,10 @@ class mav_dynamics:
         ur = self._state[3] - uw
         vr = self._state[4] - vw
         wr = self._state[5] - ww
+
+        ur = ur.item(0)
+        vr = vr.item(0)
+        wr = wr.item(0)
 
 
         self._Va = sqrt(ur**2+vr**2+wr**2)
