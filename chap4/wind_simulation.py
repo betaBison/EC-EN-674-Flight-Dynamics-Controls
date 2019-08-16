@@ -7,7 +7,7 @@ import sys
 sys.path.append('..')
 import numpy as np
 from math import sqrt
-import control.matlab as ctrl
+import scipy.signal as ss
 
 class wind_simulation:
     def __init__(self, Ts,Va=17):
@@ -34,24 +34,24 @@ class wind_simulation:
 
         # transfer functions for gust model
         k1 = sigma_u*sqrt(3.*Va/Lv)
-        TF_u = ctrl.tf([sigma_u*sqrt(2.*Va/Lu)],[1.,Va/Lu],Ts)
+        TF_u = ss.TransferFunction([sigma_u*sqrt(2.*Va/Lu)],[1.,Va/Lu],dt=Ts)
         k1 = sigma_v*sqrt(3.*Va/Lv)
-        TF_v = ctrl.tf([k1,k1*Va/(sqrt(3)*Lu)],[1.,2.*Va/Lu,(Va/Lu)**2],Ts)
+        TF_v = ss.TransferFunction([k1,k1*Va/(sqrt(3)*Lu)],[1.,2.*Va/Lu,(Va/Lu)**2],dt=Ts)
         k2 = sigma_w*sqrt(3.*Va/Lw)
-        TF_w = ctrl.tf([k2,k2*Va/(sqrt(3)*Lw)],[1.,2.*Va/Lw,(Va/Lw)**2],Ts)
+        TF_w = ss.TransferFunction([k2,k2*Va/(sqrt(3)*Lw)],[1.,2.*Va/Lw,(Va/Lw)**2],dt=Ts)
 
         # Conversion to state space and pull out matrices
-        SS_u = ctrl.tf2ss(TF_u)
+        SS_u = TF_u.to_ss()
         self._A_u = SS_u.A
         self._B_u = SS_u.B
         self._C_u = SS_u.C
 
-        SS_v = ctrl.tf2ss(TF_v)
+        SS_v = TF_v.to_ss()
         self._A_v = SS_v.A
         self._B_v = SS_v.B
         self._C_v = SS_v.C
 
-        SS_w = ctrl.tf2ss(TF_w)
+        SS_w = TF_w.to_ss()
         self._A_w = SS_w.A
         self._B_w = SS_w.B
         self._C_w = SS_w.C
