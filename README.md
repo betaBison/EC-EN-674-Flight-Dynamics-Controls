@@ -9,10 +9,10 @@ Youtube videos demonstrating each chapter implementation can be found [here.](ht
 This project is compatible with Python 3.6.8. It is NOT compatible with Python 2 as there are dependent packages which are not Python 2 compatible.  
 
 Install needed dependencies:  
-`pip3 install numpy scipy matplotlib pyqtgraph control PyOpenGL stl`
+`pip3 install numpy scipy matplotlib pyqtgraph PyOpenGL stl`
 
 # Run
 `cd` into the chapter or project directory and run:  
 `python3 mavsim_*.py`
-  
+
 ![rrt example](docs/rrt.png)
