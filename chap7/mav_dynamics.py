@@ -219,8 +219,8 @@ class mav_dynamics:
     def _forces_moments(self, delta):
         """
         return the forces on the UAV based on the state, wind, and control surfaces
-        :param delta: np.matrix(delta_a, delta_e, delta_r, delta_t)
-        :return: Forces and Moments on the UAV np.matrix(Fx, Fy, Fz, Ml, Mn, Mm)
+        :param delta: np.array(delta_a, delta_e, delta_r, delta_t)
+        :return: Forces and Moments on the UAV np.array(Fx, Fy, Fz, Ml, Mn, Mm)
         """
         # pull out neeed inputs
         e0 = self._state.item(6)
@@ -235,7 +235,7 @@ class mav_dynamics:
         delta_r = delta.item(2)
         delta_t = delta.item(3)
 
-        M1 = np.matrix([[2.*(e1*e3-e2*e0)],
+        M1 = np.array([[2.*(e1*e3-e2*e0)],
                         [2.*(e2*e3+e1*e0)],
                         [e3**2+e0**2-e1**2-e2**2]])
 
@@ -243,7 +243,7 @@ class mav_dynamics:
 
         Tp = self.propThrust(delta_t,self._Va)
 
-        M2 = np.matrix([[Tp],
+        M2 = np.array([[Tp],
                        [0.],
                        [0.]])
 
@@ -255,11 +255,11 @@ class mav_dynamics:
         Czq = -MAV.C_D_q*sin(self._alpha) - MAV.C_L_q*cos(self._alpha)
         Czde = -MAV.C_D_delta_e*sin(self._alpha) - MAV.C_L_delta_e*cos(self._alpha)
 
-        M3 = np.matrix([[Cx+Cxq*MAV.c*q/(2.*self._Va)],
+        M3 = np.array([[Cx+Cxq*MAV.c*q/(2.*self._Va)],
                         [MAV.C_Y_0 + MAV.C_Y_beta*self._beta + MAV.C_Y_p*MAV.b*p/(2.*self._Va) + MAV.C_Y_r*MAV.b*r/(2*self._Va)],
                         [Cz + Czq*MAV.c*q/(2.*self._Va)]])
 
-        M4 = np.matrix([[Cxde*delta_e],
+        M4 = np.array([[Cxde*delta_e],
                         [MAV.C_Y_delta_a*delta_a + MAV.C_Y_delta_r*delta_r],
                         [Czde*delta_e]])
 
@@ -275,17 +275,17 @@ class mav_dynamics:
         self._forces[2] = fz
 
 
-        M5 = np.matrix([[MAV.b*(MAV.C_ell_0 + MAV.C_ell_beta*self._beta + MAV.C_ell_p*MAV.b*p/(2.*self._Va) + MAV.C_ell_r*MAV.b*r/(2.*self._Va))],
+        M5 = np.array([[MAV.b*(MAV.C_ell_0 + MAV.C_ell_beta*self._beta + MAV.C_ell_p*MAV.b*p/(2.*self._Va) + MAV.C_ell_r*MAV.b*r/(2.*self._Va))],
                         [MAV.c*(MAV.C_m_0 + MAV.C_m_alpha*self._alpha + MAV.C_m_q*MAV.c*q/(2.*self._Va))],
                         [MAV.b*(MAV.C_n_0 + MAV.C_n_beta*self._beta + MAV.C_n_p*MAV.b*p/(2.*self._Va) + MAV.C_n_r*MAV.b*r/(2.*self._Va))]])
 
-        M6 = np.matrix([[MAV.b*(MAV.C_ell_delta_a*delta_a + MAV.C_ell_delta_r*delta_r)],
+        M6 = np.array([[MAV.b*(MAV.C_ell_delta_a*delta_a + MAV.C_ell_delta_r*delta_r)],
                         [MAV.c*(MAV.C_m_delta_e*delta_e)],
                         [MAV.b*(MAV.C_n_delta_a*delta_a + MAV.C_n_delta_r*delta_r)]])
 
         Qp = self.propTorque(delta_t,self._Va)
 
-        M7 = np.matrix([[-Qp],
+        M7 = np.array([[-Qp],
                         [0.],
                         [0.]])
 
