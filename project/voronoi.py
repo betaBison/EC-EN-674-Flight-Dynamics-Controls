@@ -19,7 +19,7 @@ class Voronoi_Planner():
         self.map = map
         self.num_closest_points = 3
         self.end = np.array([[PLAN.city_width/2.,PLAN.city_width/2.]])
-        start = np.array([[P.pn0, P.pe0,]])
+        start = np.array([[P.pn0_corner, P.pe0_corner,]])
         start = np.array([np.transpose([start[0,1],start[0,0]])])
 
 

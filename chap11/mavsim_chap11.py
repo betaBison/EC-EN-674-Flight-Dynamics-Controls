@@ -9,6 +9,7 @@ sys.path.append('..')
 import numpy as np
 import parameters.simulation_parameters as SIM
 import parameters.planner_parameters as PLAN
+import parameters.aerosonde_parameters as P
 
 from chap3.data_viewer import data_viewer
 from chap4.wind_simulation import wind_simulation
@@ -31,9 +32,9 @@ if VIDEO == True:
 
 # initialize elements of the architecture
 wind = wind_simulation(SIM.ts_simulation)
-mav = mav_dynamics(SIM.ts_simulation)
+mav = mav_dynamics(SIM.ts_simulation,[P.pn0,P.pe0,P.pd0])
 ctrl = autopilot(SIM.ts_simulation)
-obsv = observer(SIM.ts_simulation)
+obsv = observer(SIM.ts_simulation,[P.pn0,P.pe0,P.pd0])
 path_follow = path_follower()
 path_manage = path_manager()
 

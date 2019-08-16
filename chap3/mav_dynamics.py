@@ -20,14 +20,14 @@ import parameters.aerosonde_parameters as MAV
 from tools.tools import Quaternion2Euler
 
 class mav_dynamics:
-    def __init__(self, Ts):
+    def __init__(self, Ts, initial_position):
         self.ts_simulation = Ts
         # set initial states based on parameter file
         # _state is the 13x1 internal state of the aircraft that is being propagated:
         # _state = [pn, pe, pd, u, v, w, e0, e1, e2, e3, p, q, r]
-        self._state = np.array([[MAV.pn0],
-                                [MAV.pe0],
-                                [MAV.pd0],
+        self._state = np.array([[initial_position[0]],
+                                [initial_position[1]],
+                                [initial_position[2]],
                                 [MAV.u0],
                                 [MAV.v0],
                                 [MAV.w0],

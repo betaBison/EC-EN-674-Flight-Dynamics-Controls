@@ -17,7 +17,7 @@ from tools.tools import jacobian, wrapAnglePi2Pi #,Euler2Rotation
 from message_types.msg_state import msg_state
 
 class observer:
-    def __init__(self, ts_control):
+    def __init__(self, ts_control, initial_position):
         # initialized estimated state message
         self.estimated_state = msg_state()
         # use alpha filters to low pass filter gyros and accels
@@ -35,7 +35,7 @@ class observer:
         # ekf for phi and theta
         self.attitude_ekf = ekf_attitude()
         # ekf for pn, pe, Vg, chi, wn, we, psi
-        self.position_ekf = ekf_position()
+        self.position_ekf = ekf_position(initial_position)
 
     def update(self, measurements):
 
@@ -154,7 +154,7 @@ class ekf_attitude:
 
 class ekf_position:
     # implement continous-discrete EKF to estimate pn, pe, chi, Vg
-    def __init__(self):
+    def __init__(self, initial_position):
         self.Q = np.diag([1e-50,
                           1e-50,
                           1e-1,
@@ -168,8 +168,8 @@ class ekf_position:
                            [0.,0.,0.,SENSOR.gps_course_sigma**2]])
         self.N = 4  # number of prediction step per sample
         self.Ts = (SIM.ts_control / self.N)
-        self.xhat = np.array([[P.pn0],
-                              [P.pe0],
+        self.xhat = np.array([[initial_position[0]],
+                              [initial_position[1]],
                               [P.u0],
                               [P.psi0],
                               [0.0],

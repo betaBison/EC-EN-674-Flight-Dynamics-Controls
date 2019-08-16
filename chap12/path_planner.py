@@ -14,13 +14,14 @@ from chap12.planRRT import planRRT
 
 
 class path_planner:
-    def __init__(self,map,world_view):
+    def __init__(self,map,world_view,initial_position):
         # waypoints definition
         self.waypoints = msg_waypoints()
         self.end = np.array([PLAN.city_width/2.0, PLAN.city_width/2.0, P.pd0])#, p.u0])
         self.start = np.array([-PLAN.city_width, -PLAN.city_width, P.pd0])#, P.u0])
         self.map = map
         self.rrt = planRRT(map,world_view)
+        self.initial_position = initial_position
 
     def update(self, map, state):
         # this flag is set for one time step to signal a redraw in the viewer
@@ -33,7 +34,7 @@ class path_planner:
             self.waypoints.num_waypoints = 4
             Va = 25
             self.waypoints.ned[:, 0:self.waypoints.num_waypoints] \
-                = np.array([[P.pn0, P.pe0, P.pd0],
+                = np.array([[self.initial_position[0], self.initial_position[1], self.initial_position[1]],
                             [1000, 0, -100],
                             [0, 1000, -100],
                             [1000, 1000, -100]]).T
@@ -44,7 +45,7 @@ class path_planner:
             self.waypoints.num_waypoints = 4
             Va = PLAN.Va0
             self.waypoints.ned[:, 0:self.waypoints.num_waypoints] \
-                = np.array([[P.pn0, P.pe0, P.pd0],
+                = np.array([[self.initial_position[0], self.initial_position[1], self.initial_position[1]],
                             [1000., 0.0, -100.],
                             [0.0, 1000., -100.],
                             [1000., 1000., -100.]]).T

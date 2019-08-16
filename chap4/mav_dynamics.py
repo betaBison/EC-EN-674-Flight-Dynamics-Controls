@@ -23,7 +23,7 @@ import parameters.aerosonde_parameters as MAV
 from tools.tools import Quaternion2Euler, RotationVehicle2Body, RotationBody2Vehicle
 
 class mav_dynamics:
-    def __init__(self, Ts):
+    def __init__(self, Ts, initial_position):
         self._ts_simulation = Ts
         # set initial states based on parameter file
         # _state is the 13x1 internal state of the aircraft that is being propagated:
@@ -31,9 +31,9 @@ class mav_dynamics:
         # We will also need a variety of other elements that are functions of the _state and the wind.
         # self.true_state is a 19x1 vector that is estimated and used by the autopilot to control the aircraft:
         # true_state = [pn, pe, h, Va, alpha, beta, phi, theta, chi, p, q, r, Vg, wn, we, psi, gyro_bx, gyro_by, gyro_bz]
-        self._state = np.array([[MAV.pn0],  # (0)
-                               [MAV.pe0],   # (1)
-                               [MAV.pd0],   # (2)
+        self._state = np.array([[initial_position[0]],  # (0)
+                               [initial_position[1]],   # (1)
+                               [initial_position[2]],   # (2)
                                [MAV.u0],    # (3)
                                [MAV.v0],    # (4)
                                [MAV.w0],    # (5)
