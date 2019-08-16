@@ -69,11 +69,11 @@ class wind_simulation:
         # propagate Dryden model (Euler method): x[k+1] = x[k] + Ts*( A x[k] + B w[k] )
         #self._gust_state += self._Ts * (self._A @ self._gust_state + self._B * w)
         self._gust_u += self._Ts * (self._A_u * self._gust_u + self._B_u * w)
-        gust_u = self._C_u @ self._gust_u
+        gust_u = np.matmul(self._C_u, self._gust_u)
         self._gust_v += self._Ts * (self._A_v * self._gust_v + self._B_v * w)
-        gust_v = self._C_v @ self._gust_v
+        gust_v = np.matmul(self._C_v, self._gust_v)
         self._gust_w += self._Ts * (self._A_w * self._gust_w + self._B_w * w)
-        gust_w = self._C_w @ self._gust_w
+        gust_w = np.matmul(self._C_w, self._gust_w)
         self._gust_state = np.array([[gust_u.item(0),gust_v.item(0),gust_w.item(0)]]).T
 
         # output the current gust: y[k] = C x[k]

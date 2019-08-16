@@ -34,10 +34,10 @@ class dubins_parameters:
         if ell < 2 * R:
             print('Error in Dubins Parameters: The distance between nodes must be larger than 2R.')
         else:
-            crs = ps + R*rotz(np.pi/2.) @ np.array([[np.cos(chis),np.sin(chis),0.]]).T
-            cls = ps + R*rotz(-np.pi/2.) @ np.array([[np.cos(chis),np.sin(chis),0.]]).T
-            cre = pe + R*rotz(np.pi/2.) @ np.array([[np.cos(chie),np.sin(chie),0.]]).T
-            cle = pe + R*rotz(-np.pi/2.) @ np.array([[np.cos(chie),np.sin(chie),0.]]).T
+            crs = ps + np.matmul(R*rotz(np.pi/2.), np.array([[np.cos(chis),np.sin(chis),0.]]).T)
+            cls = ps + np.matmul(R*rotz(-np.pi/2.), np.array([[np.cos(chis),np.sin(chis),0.]]).T)
+            cre = pe + np.matmul(R*rotz(np.pi/2.), np.array([[np.cos(chie),np.sin(chie),0.]]).T)
+            cle = pe + np.matmul(R*rotz(-np.pi/2.), np.array([[np.cos(chie),np.sin(chie),0.]]).T)
             e1 = np.array([[1.,0.,0.]]).T
 
             # L1 calculation
@@ -71,8 +71,8 @@ class dubins_parameters:
                 self.center_e = cre
                 self.dir_e = 1
                 self.n1 = (self.center_e - self.center_s)/np.linalg.norm(self.center_e - self.center_s)
-                self.r1 = self.center_s + R*rotz(-np.pi/2.) @ self.n1
-                self.r2 = self.center_e + R*rotz(-np.pi/2.) @ self.n1
+                self.r1 = self.center_s + np.matmul(R*rotz(-np.pi/2.), self.n1)
+                self.r2 = self.center_e + np.matmul(R*rotz(-np.pi/2.), self.n1)
             elif L == 1:
                 self.center_s = crs
                 self.dir_s = 1
@@ -81,9 +81,9 @@ class dubins_parameters:
                 theta = np.pi/2. - np.arctan2(cle.item(0)-crs.item(0),cle.item(1)-crs.item(1))
                 ll = np.linalg.norm(cle-crs)
                 theta2 = theta - np.pi/2. + np.arcsin(2.*R/ll)
-                self.n1 = rotz(theta2 + np.pi/2.) @ e1
-                self.r1 = self.center_s + R*rotz(theta2) @ e1
-                self.r2 = self.center_e + R*rotz(theta2 + np.pi) @ e1
+                self.n1 = np.matmul(rotz(theta2 + np.pi/2.), e1)
+                self.r1 = self.center_s + np.matmul(R*rotz(theta2), e1)
+                self.r2 = self.center_e + np.matmul(R*rotz(theta2 + np.pi), e1)
             elif L == 2:
                 self.center_s = cls
                 self.dir_s = -1
@@ -92,21 +92,21 @@ class dubins_parameters:
                 theta = np.pi/2. - np.arctan2(cre.item(0)-cls.item(0),cre.item(1)-cls.item(1))
                 ll = np.linalg.norm(cre-cls)
                 theta2 = np.arccos(2.*R/ll)
-                self.n1 = rotz(theta + theta2 - np.pi/2.) @ e1
+                self.n1 = np.matmul(rotz(theta + theta2 - np.pi/2.), e1)
 
-                self.r1 = self.center_s + R*rotz(theta + theta2) @ e1
-                self.r2 = self.center_e + R*rotz(theta + theta2 - np.pi) @ e1
+                self.r1 = self.center_s + np.matmul(R*rotz(theta + theta2), e1)
+                self.r2 = self.center_e + np.matmul(R*rotz(theta + theta2 - np.pi), e1)
             else:
                 self.center_s = cls
                 self.dir_s = -1
                 self.center_e = cle
                 self.dir_e = -1
                 self.n1 = (self.center_e - self.center_s)/np.linalg.norm(self.center_e - self.center_s)
-                self.r1 = self.center_s + R*rotz(np.pi/2.) @ self.n1
-                self.r2 = self.center_e + R*rotz(np.pi/2.) @ self.n1
+                self.r1 = self.center_s + np.matmul(R*rotz(np.pi/2.), self.n1)
+                self.r2 = self.center_e + np.matmul(R*rotz(np.pi/2.), self.n1)
 
             self.r3 = pe
-            self.n3 = rotz(chie) @ e1
+            self.n3 = np.matmul(rotz(chie), e1)
             # input parameters for graphing use
             self.p_s = ps
             self.chi_s = chis

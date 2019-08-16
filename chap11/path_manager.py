@@ -74,7 +74,7 @@ class path_manager:
 
         qi_prev = (wi_cur - wi_prev)/np.linalg.norm(wi_cur - wi_prev)
         qi_cur = (wi_next - wi_cur)/np.linalg.norm(wi_next - wi_cur)
-        rose = np.arccos(-qi_prev.T @ qi_cur)
+        rose = np.arccos(np.matmul(-qi_prev.T, qi_cur))
         if self.manager_state == 1:
             self.path.line_origin = np.array([waypoints.ned[:,self.ptr_previous]]).T
             diff = waypoints.ned[:,self.ptr_current] - waypoints.ned[:,self.ptr_previous]
@@ -115,7 +115,7 @@ class path_manager:
 
             qi_prev = (wi_cur - wi_prev)/np.linalg.norm(wi_cur - wi_prev)
             qi_cur = (wi_next - wi_cur)/np.linalg.norm(wi_next - wi_cur)
-            rose = np.arccos(-qi_prev.T @ qi_cur)
+            rose = np.arccos(np.matmul(-qi_prev.T, qi_cur))
             self.recalculate = False
 
         if self.manager_state == 1:
@@ -212,7 +212,7 @@ class path_manager:
             self.ptr_next -= self.num_waypoints
 
     def inHalfSpace(self, pos):
-        if (pos-self.halfspace_r).T @ self.halfspace_n >= 0:
+        if np.matmul((pos-self.halfspace_r).T, self.halfspace_n) >= 0:
             return True
         else:
             return False

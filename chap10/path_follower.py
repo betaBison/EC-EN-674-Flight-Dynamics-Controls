@@ -33,7 +33,7 @@ class path_follower:
         chi_q = wrapAnglePi2Pi(chi_q)
         Ri2P = RotationMatrix(chi_q)
         p = np.array([[state.pn, state.pe, -state.h]]).T
-        ep = Ri2P @ (p - path.line_origin)
+        ep = np.matmul(Ri2P, (p - path.line_origin))
         chi_d = chi_q -self.chi_inf*(2./np.pi)*atan(self.k_path*ep.item(1))
         self.autopilot_commands.course_command = chi_d
 
@@ -42,7 +42,7 @@ class path_follower:
         ki = np.array([0.,0.,1.]).T
         n = np.cross(q,ki)/np.linalg.norm(np.cross(q,ki))
         n.resize(3,1)
-        si = ep - (ep.T @ n)*n
+        si = ep - np.matmul(ep.T, n)*n
         rd = path.line_origin.item(2)
         hd = -rd + np.sqrt(si.item(0)**2+si.item(1)**2)*(q.item(2)/np.sqrt(q.item(0)**2+q.item(1)**2))
         self.autopilot_commands.altitude_command = hd

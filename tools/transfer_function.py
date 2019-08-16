@@ -41,8 +41,8 @@ class transfer_function:
 
     def update(self, u):
         '''Update state space model'''
-        self._state = self._A @ self._state + self._B * u
-        y = self._C @ self._state + self._D * u
+        self._state = np.matmul(self._A, self._state) + self._B * u
+        y = np.matmul(self._C, self._state) + self._D * u
         return y[0][0]
 
 if __name__ == "__main__":

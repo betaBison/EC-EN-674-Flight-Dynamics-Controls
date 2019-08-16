@@ -59,7 +59,7 @@ class path_viewer():
         translated_points = self._translate_points(rotated_points, mav_position)
         # convert North-East Down to East-North-Up for rendering
         R = np.array([[0, 1, 0], [1, 0, 0], [0, 0, -1]])
-        translated_points = R @ translated_points
+        translated_points = np.matmul(R, translated_points)
         # convert points to triangular mesh defined as array of three 3D points (Nx3x3)
         mesh = self._points_to_mesh(translated_points)
 
@@ -95,7 +95,7 @@ class path_viewer():
     # private functions
     def _rotate_points(self, points, R):
         "Rotate points by the rotation matrix R"
-        rotated_points = R @ points
+        rotated_points = np.matmul(R, points)
         return rotated_points
 
     def _translate_points(self, points, translation):
@@ -109,9 +109,9 @@ class path_viewer():
         #print(points.shape[0])
         points = points.T
         R = np.array([[0, -1, 0], [1, 0, 0], [0, 0, 1]])
-        points = R @ points
+        points = np.matmul(R, points)
         R = np.array([[0, 0, -1], [0, 1, 0], [1, 0, 0]])
-        points = R @ points
+        points = np.matmul(R, points)
 
 
         #scale points for better rendering
@@ -165,7 +165,7 @@ class path_viewer():
                             path.line_origin.item(2) + self.scale * path.line_direction.item(2)]])
         # convert North-East Down to East-North-Up for rendering
         R = np.array([[0, 1, 0], [1, 0, 0], [0, 0, -1]])
-        points = points @ R.T
+        points = np.matmul(points, R.T)
         red = np.array([[1., 0., 0., 1]])
         path_color = np.concatenate((red, red), axis=0)
         object = gl.GLLinePlotItem(pos=points,
@@ -192,7 +192,7 @@ class path_viewer():
             path_color = np.concatenate((path_color, red), axis=0)
         # convert North-East Down to East-North-Up for rendering
         R = np.array([[0, 1, 0], [1, 0, 0], [0, 0, -1]])
-        points = points @ R.T
+        points = np.matmul(points, R.T)
         object = gl.GLLinePlotItem(pos=points,
                                    color=path_color,
                                    width=2,

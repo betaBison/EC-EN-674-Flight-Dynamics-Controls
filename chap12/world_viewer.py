@@ -133,7 +133,7 @@ class world_viewer():
         # convert North-East Down to East-North-Up for rendering
         R = np.array([[0, 1, 0], [1, 0, 0], [0, 0, -1]])
 
-        translated_points = R @ translated_points
+        translated_points = np.matmul(R, translated_points)
         # convert points to triangular mesh defined as array of three 3D points (Nx3x3)
         mesh = self.points_to_mesh(translated_points)
         if not self.plot_initialized:
@@ -163,7 +163,7 @@ class world_viewer():
 
     def rotate_points(self, points, R):
         "Rotate points by the rotation matrix R"
-        rotated_points = R @ points
+        rotated_points = np.matmul(R, points)
         return rotated_points
 
     def translate_points(self, points, translation):
@@ -177,9 +177,9 @@ class world_viewer():
         #print(points.shape[0])
         points = points.T
         R = np.array([[0, -1, 0], [1, 0, 0], [0, 0, 1]])
-        points = R @ points
+        points = np.matmul(R, points)
         R = np.array([[0, 0, -1], [0, 1, 0], [1, 0, 0]])
-        points = R @ points
+        points = np.matmul(R, points)
 
 
         #scale points for better rendering
@@ -250,7 +250,7 @@ class world_viewer():
                             path.line_origin.item(2) + self.scale * path.line_direction.item(2)]])
         # convert North-East Down to East-North-Up for rendering
         R = np.array([[0, 1, 0], [1, 0, 0], [0, 0, -1]])
-        points = points @ R.T
+        points = np.matmul(points, R.T)
         return points
 
     def orbit_points(self, path):
@@ -270,7 +270,7 @@ class world_viewer():
             points = np.concatenate((points, new_point), axis=0)
         # convert North-East Down to East-North-Up for rendering
         R = np.array([[0, 1, 0], [1, 0, 0], [0, 0, -1]])
-        points = points @ R.T
+        points = np.matmul(points, R.T)
         return points
 
     def drawWaypoints(self, waypoints, radius):
@@ -291,7 +291,7 @@ class world_viewer():
 
     def straight_waypoint_points(self, waypoints):
         R = np.array([[0, 1, 0], [1, 0, 0], [0, 0, -1]])
-        points = R @ waypoints.ned
+        points = np.matmul(R, waypoints.ned)
         return points.T
 
     def dubins_points(self, waypoints, radius, Del):
@@ -385,7 +385,7 @@ class world_viewer():
                 points = np.concatenate((points, new_point), axis=0)
 
         R = np.array([[0, 1, 0], [1, 0, 0], [0, 0, -1]])
-        points = points @ R.T
+        points = np.matmul(points, R.T)
         return points
 
     def drawMap(self, map):

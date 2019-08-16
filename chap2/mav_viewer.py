@@ -57,7 +57,7 @@ class mav_viewer():
         translated_points = self._translate_points(rotated_points, spacecraft_position)
         # convert North-East Down to East-North-Up for rendering
         R_disp = np.array([[0, 1, 0], [1, 0, 0], [0, 0, -1]])
-        translated_points = R_disp @ translated_points
+        translated_points = np.matmul(R_disp, translated_points)
         # convert points to triangular mesh defined as array of three 3D points (Nx3x3)
         mesh = self._points_to_mesh(translated_points)
 
@@ -101,7 +101,7 @@ class mav_viewer():
     # private functions
     def _rotate_points(self, points, R):
         "Rotate points by the rotation matrix R"
-        rotated_points = R @ points
+        rotated_points = np.matmul(R, points)
         return rotated_points
 
     def _translate_points(self, points, translation):
@@ -119,9 +119,9 @@ class mav_viewer():
         #print(points.shape[0])
         points = points.T
         R = np.array([[0, -1, 0], [1, 0, 0], [0, 0, 1]])
-        points = R @ points
+        points = np.matmul(R, points)
         R = np.array([[0, 0, -1], [0, 1, 0], [1, 0, 0]])
-        points = R @ points
+        points = np.matmul(R, points)
 
 
         # scale points for better rendering
@@ -190,5 +190,5 @@ class mav_viewer():
         R_yaw = np.array([[c_psi, s_psi, 0],
                           [-s_psi, c_psi, 0],
                           [0, 0, 1]])
-        R = R_roll @ R_pitch @ R_yaw  # inertial to body (Equation 2.4 in book)
+        R = np.matmul(np.matmul(R_roll, R_pitch), R_yaw ) # inertial to body (Equation 2.4 in book)
         return R.T  # transpose to return body to inertial

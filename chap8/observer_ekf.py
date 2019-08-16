@@ -103,9 +103,9 @@ class ekf_attitude:
         theta = x.item(1)
         G = np.array([[1.0, np.sin(phi)*np.tan(theta),np.cos(phi)*np.tan(theta)],
                       [0., np.cos(phi), -np.sin(phi)]])
-        _f = G @ np.array([[state.p],
+        _f = np.matmul(G, np.array([[state.p],
                            [state.q],
-                           [state.r]])
+                           [state.r]]))
         return _f
 
     def h(self, x, state):
@@ -129,7 +129,7 @@ class ekf_attitude:
             G = np.array([[1.0, np.sin(state.phi)*np.tan(state.theta),np.cos(state.phi)*np.tan(state.theta)],
                           [0., np.cos(state.phi), -np.sin(state.phi)]])
             # update P with continuous time model
-            self.P += self.Ts * (A @ self.P + self.P @ A.T + self.Q + G @ self.Q_gyro @ G.T)
+            self.P += self.Ts * (np.matmul(A, self.P) + np.matmul(self.P, A.T) + self.Q + np.matmul(np.matmul(G, self.Q_gyro), G.T))
             # convert to discrete time models
             #A_d =
             #G_d = ts*G
@@ -148,9 +148,9 @@ class ekf_attitude:
                 error = True
         if not(error):
             Ci = C
-            Li = self.P @ Ci.T @ np.linalg.inv(self.R_accel + Ci @ self.P @ Ci.T)
-            self.P = (np.identity(2) - Li @ Ci) @ self.P
-            self.xhat += Li @ (y - h)
+            Li = np.matmul(np.matmul(self.P, Ci.T), np.linalg.inv(self.R_accel + np.matmul(np.matmul(Ci, self.P), Ci.T)))
+            self.P = np.matmul((np.identity(2) - np.matmul(Li, Ci)), self.P)
+            self.xhat += np.matmul(Li, (y - h))
 
 class ekf_position:
     # implement continous-discrete EKF to estimate pn, pe, chi, Vg
@@ -249,7 +249,7 @@ class ekf_position:
             # compute Jacobian
             A = jacobian(self.f, self.xhat, state)
             # update P with continuous time model
-            self.P += self.Ts * (A @ self.P + self.P @ A.T + self.Q)# + G @ self.Q_gyro @ G.T)
+            self.P += self.Ts * (np.matmul(A, self.P) + np.matmul(self.P, A.T) + self.Q)# + np.matmul(np.dot(G, self.Q_gyro), G.T))
             # convert to discrete time models
             #A_d =
             # update P with discrete time model
@@ -267,9 +267,9 @@ class ekf_position:
                 error = True
         if not(error):
             Ci = C[:,4:6]
-            Li = self.P[4:6,4:6] @ Ci.T
-            self.P[4:6,4:6] = (np.identity(2) - Li @ Ci) @ self.P[4:6,4:6]
-            self.xhat[4:6] += Li @ (y-h)
+            Li = np.matmul(self.P[4:6,4:6], Ci.T)
+            self.P[4:6,4:6] = np.matmul((np.identity(2) - np.matmul(Li, Ci)), self.P[4:6,4:6])
+            self.xhat[4:6] += np.matmul(Li, (y-h))
 
         # only update GPS when one of the signals changes
         if (measurement.gps_n != self.gps_n_old) \
@@ -281,9 +281,9 @@ class ekf_position:
             C = jacobian(self.h_gps, self.xhat, state)
             y = np.array([[measurement.gps_n], [measurement.gps_e], [measurement.gps_Vg], [measurement.gps_course]])
             Ci = C[:,0:4]
-            Li = self.P[0:4,0:4] @ Ci.T @ np.linalg.inv(self.R + Ci @ self.P[0:4,0:4] @ Ci.T)
-            self.P[0:4,0:4] = (np.identity(4)-Li*Ci) @ self.P[0:4,0:4]
-            new_add = Li @ (y - h)
+            Li = np.matmul(np.matmul(self.P[0:4,0:4], Ci.T), np.linalg.inv(self.R + np.matmul(np.matmul(Ci, self.P[0:4,0:4]), Ci.T)))
+            self.P[0:4,0:4] = np.matmul((np.identity(4)-Li*Ci), self.P[0:4,0:4])
+            new_add = np.matmul(Li, (y - h))
             threshold = np.array([20.0,30.0,10.0,np.radians(5.0)])
             for ii in range(4):
                 if np.abs(new_add.item(ii)) < threshold[ii]:
