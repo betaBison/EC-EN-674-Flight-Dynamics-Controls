@@ -35,6 +35,7 @@ voronoi = Voronoi_Planner(map)
 
 # -------path planner - ----
 waypoints = voronoi.plan()
+waypoints.ned = waypoints.ned[:,:waypoints.num_waypoints]
 
 # initialize the visualization
 VIDEO = False  # True==write video, False==don't write video
@@ -73,7 +74,7 @@ while sim_time < SIM.end_time:
     mav.update(delta, current_wind)  # propagate the MAV dynamics
 
     #-------update viewer-------------
-    world_view.update(map, waypoints, path, mav.msg_true_state)  # plot path and MAV
+    world_view.update(waypoints, path, mav.msg_true_state)  # plot path and MAV
     data_view.update(mav.msg_true_state, # true states
                      estimated_state, # estimated states
                      commanded_state, # commanded states
