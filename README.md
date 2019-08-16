@@ -12,7 +12,7 @@ Install needed dependencies:
 `pip3 install numpy scipy matplotlib pyqtgraph control PyOpenGL stl`
 
 # Run
-cd into the chapter or project directory and run:  
+`cd` into the chapter or project directory and run:  
 `python3 mavsim_*.py`
-
+  
 ![rrt example](docs/rrt.png)
