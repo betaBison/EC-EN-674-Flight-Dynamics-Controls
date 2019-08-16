@@ -8,6 +8,7 @@ import sys
 sys.path.append('..')
 import numpy as np
 import parameters.simulation_parameters as SIM
+import parameters.aerosonde_parameters as P
 
 from chap2.mav_viewer import mav_viewer
 from chap3.data_viewer import data_viewer
@@ -53,9 +54,9 @@ if VIDEO == True:
 
 # initialize elements of the architecture
 wind = wind_simulation(SIM.ts_simulation)
-mav = mav_dynamics(SIM.ts_simulation)
+mav = mav_dynamics(SIM.ts_simulation,[P.pn0,P.pe0,P.pd0])
 ctrl = autopilot(SIM.ts_simulation)
-obsv = observer(SIM.ts_simulation)
+obsv = observer(SIM.ts_simulation,[P.pn0,P.pe0,P.pd0])
 input = msg_state()
 
 # autopilot commands

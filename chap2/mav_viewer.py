@@ -5,7 +5,6 @@ example of drawing a box-like spacecraft in python
         1/8/2019 - RWB
 """
 import numpy as np
-from stl import mesh as mesh_mod
 import pyqtgraph as pg
 import pyqtgraph.opengl as gl
 import pyqtgraph.Vector as Vector
@@ -115,7 +114,7 @@ class mav_viewer():
             Define the points on the aircraft following diagram in Figure C.3
         """
         #points are in NED coordinates
-        points = np.genfromtxt ('polyvert3.csv', delimiter=",")
+        points = np.genfromtxt ('../chap2/polyvert3.csv', delimiter=",")
         #print(points.shape[0])
         points = points.T
         R = np.array([[0, -1, 0], [1, 0, 0], [0, 0, 1]])
@@ -162,7 +161,7 @@ class mav_viewer():
           (a rectangle requires two triangular mesh faces)
         """
         points=points.T
-        mesh2 = np.genfromtxt ('polyface3.csv', delimiter=",")
+        mesh2 = np.genfromtxt ('../chap2/polyface3.csv', delimiter=",")
         mesh3 = np.array(list(map(lambda x: list(map(lambda y: points[int(y)], x)), mesh2)))
         return mesh3
 
