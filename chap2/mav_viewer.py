@@ -165,14 +165,14 @@ class mav_viewer():
         mesh3 = np.array(list(map(lambda x: list(map(lambda y: points[int(y)], x)), mesh2)))
         return mesh3
 
-    def _Euler2Rotation(self, phi, theta, psi):
+    def _Euler2Rotation(self, _phi, _theta, _psi):
         """
         Converts euler angles to rotation matrix (R_b^i, i.e., body to inertial)
         """
         # only call sin and cos once for each angle to speed up rendering
-        phi = phi.item(0)
-        theta = theta.item(0)
-        psi = psi.item(0)
+        phi = float(_phi)
+        theta = float(_theta)
+        psi = float(_psi)
         c_phi = np.cos(phi)
         s_phi = np.sin(phi)
         c_theta = np.cos(theta)

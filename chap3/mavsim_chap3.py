@@ -9,6 +9,7 @@ import sys
 sys.path.append('..')
 import numpy as np
 import parameters.simulation_parameters as SIM
+import parameters.aerosonde_parameters as P
 
 from chap2.mav_viewer import mav_viewer
 #from chap2.video_writer import video_writer
@@ -26,15 +27,15 @@ if VIDEO == True:
                          output_rate=SIM.ts_video)
 
 # initialize elements of the architecture
-mav = mav_dynamics(SIM.ts_simulation)
+mav = mav_dynamics(SIM.ts_simulation,[P.pn0,P.pe0,P.pd0])
 
 # initialize the simulation time
 sim_time = SIM.start_time
 
 # main simulation loop
 print("Press Command-Q to exit...")
-while sim_time < SIM.end_time:
-    if sim_time < SIM.end_time/12.:
+while sim_time < SIM.end_time_short:
+    if sim_time < SIM.end_time_short/12.:
         #-------vary forces and moments to check dynamics-------------
         fx = 10.  #10
         fy = 0 # 10
@@ -46,60 +47,60 @@ while sim_time < SIM.end_time:
 
         #-------physical system-------------
         mav.update_state(forces_moments)  # propagate the MAV dynamics
-    elif sim_time <= 2*SIM.end_time/12.:
+    elif sim_time <= 2*SIM.end_time_short/12.:
         fx = -10.
         forces_moments = np.array([[fx, fy, fz, Mx, My, Mz]]).T
         mav.update_state(forces_moments)
-    elif sim_time <= 3*SIM.end_time/12.:
+    elif sim_time <= 3*SIM.end_time_short/12.:
         fx = 0.
         fy = 10.
         forces_moments = np.array([[fx, fy, fz, Mx, My, Mz]]).T
         mav.update_state(forces_moments)
-    elif sim_time <= 4*SIM.end_time/12.:
+    elif sim_time <= 4*SIM.end_time_short/12.:
         fy = -10.
         forces_moments = np.array([[fx, fy, fz, Mx, My, Mz]]).T
         mav.update_state(forces_moments)
-    elif sim_time <= 5*SIM.end_time/12.:
+    elif sim_time <= 5*SIM.end_time_short/12.:
         fy = 0.
         fz = -10.
         forces_moments = np.array([[fx, fy, fz, Mx, My, Mz]]).T
         mav.update_state(forces_moments)
-    elif sim_time <= 6*SIM.end_time/12.:
+    elif sim_time <= 6*SIM.end_time_short/12.:
         fz = 10.
         forces_moments = np.array([[fx, fy, fz, Mx, My, Mz]]).T
         mav.update_state(forces_moments)
-    elif sim_time <= 13*SIM.end_time/24.:
+    elif sim_time <= 13*SIM.end_time_short/24.:
         fz = 0.
         Mx = 0.1
         forces_moments = np.array([[fx, fy, fz, Mx, My, Mz]]).T
         mav.update_state(forces_moments)
-    elif sim_time <= 15*SIM.end_time/24.:
+    elif sim_time <= 15*SIM.end_time_short/24.:
         Mx = -0.1
         forces_moments = np.array([[fx, fy, fz, Mx, My, Mz]]).T
         mav.update_state(forces_moments)
-    elif sim_time <= 16*SIM.end_time/24.:
+    elif sim_time <= 16*SIM.end_time_short/24.:
         Mx = 0.1
         forces_moments = np.array([[fx, fy, fz, Mx, My, Mz]]).T
         mav.update_state(forces_moments)
-    elif sim_time <= 17*SIM.end_time/24.:
+    elif sim_time <= 17*SIM.end_time_short/24.:
         Mx = 0.
         My = 0.1
         forces_moments = np.array([[fx, fy, fz, Mx, My, Mz]]).T
         mav.update_state(forces_moments)
-    elif sim_time <= 19*SIM.end_time/24.:
+    elif sim_time <= 19*SIM.end_time_short/24.:
         My = -0.1
         forces_moments = np.array([[fx, fy, fz, Mx, My, Mz]]).T
         mav.update_state(forces_moments)
-    elif sim_time <= 20*SIM.end_time/24.:
+    elif sim_time <= 20*SIM.end_time_short/24.:
         My = 0.1
         forces_moments = np.array([[fx, fy, fz, Mx, My, Mz]]).T
         mav.update_state(forces_moments)
-    elif sim_time <= 21*SIM.end_time/24.:
+    elif sim_time <= 21*SIM.end_time_short/24.:
         My = 0.
         Mz = 0.1
         forces_moments = np.array([[fx, fy, fz, Mx, My, Mz]]).T
         mav.update_state(forces_moments)
-    elif sim_time <= 23*SIM.end_time/24.:
+    elif sim_time <= 23*SIM.end_time_short/24.:
         Mz = -0.1
         forces_moments = np.array([[fx, fy, fz, Mx, My, Mz]]).T
         mav.update_state(forces_moments)

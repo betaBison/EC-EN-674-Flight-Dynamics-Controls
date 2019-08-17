@@ -173,6 +173,9 @@ class mav_dynamics:
         vr = self._state[4] - vw
         wr = self._state[5] - ww
 
+        ur = ur.item(0)
+        vr = vr.item(0)
+        wr = wr.item(0)
 
         self._Va = sqrt(ur**2+vr**2+wr**2)
         #print("update_velocities =",self._Va)

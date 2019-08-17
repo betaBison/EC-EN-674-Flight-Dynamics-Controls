@@ -10,6 +10,7 @@ import sys
 sys.path.append('..')
 import numpy as np
 import parameters.simulation_parameters as SIM
+import parameters.aerosonde_parameters as P
 
 from chap2.mav_viewer import mav_viewer
 #from chap2.video_writer import video_writer
@@ -32,7 +33,7 @@ if VIDEO == True:
 
 # initialize elements of the architecture
 wind = wind_simulation(SIM.ts_simulation)
-mav = mav_dynamics(SIM.ts_simulation)
+mav = mav_dynamics(SIM.ts_simulation,[P.pn0,P.pe0,P.pd0])
 
 # use compute_trim function to compute trim state and trim input
 Va = 25.

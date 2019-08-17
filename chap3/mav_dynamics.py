@@ -28,7 +28,7 @@ class mav_dynamics:
         self._state = np.array([[initial_position[0]],
                                 [initial_position[1]],
                                 [initial_position[2]],
-                                [MAV.u0],
+                                [0.0],
                                 [MAV.v0],
                                 [MAV.w0],
                                 [MAV.e0],

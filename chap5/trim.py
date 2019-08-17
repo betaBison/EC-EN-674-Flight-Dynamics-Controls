@@ -10,7 +10,7 @@ import numpy as np
 from scipy.optimize import minimize
 from tools.tools import Euler2Quaternion
 import parameters.aerosonde_parameters as MAV
-from chap4.mav_dynamics import mav_dynamics as dyn
+#from chap4.mav_dynamics import mav_dynamics as dyn
 
 def compute_trim(mav, Va, gamma):
     phi = 0.0
