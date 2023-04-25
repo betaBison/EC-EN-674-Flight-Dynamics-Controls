@@ -44,7 +44,7 @@ class path_follower:
         n.resize(3,1)
         si = ep - np.matmul(ep.T, n)*n
         rd = path.line_origin.item(2)
-        hd = -rd + np.sqrt(si.item(0)**2+si.item(1)**2)*(q.item(2)/np.sqrt(q.item(0)**2+q.item(1)**2))
+        hd = -rd - np.sqrt(si.item(0)**2+si.item(1)**2)*(q.item(2)/np.sqrt(q.item(0)**2+q.item(1)**2))
         self.autopilot_commands.altitude_command = hd
 
         # feed forward same as chi desired
