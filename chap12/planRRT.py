@@ -26,7 +26,7 @@ class planRRT():
         self.map_size = PLAN.city_width
         self.world_view = world_view
         self.pts = []
-        self.num_paths = 3
+        self.num_paths = 1
         self.path_options = []
         self.cost_options = []
 
@@ -146,11 +146,28 @@ class planRRT():
             # return None if there is collision
             return None
 
+    # Distance based collision checker
     def checkValidity(self,pt1,pt2):
+        # Create an 1-D array of equally spaced points between 0 & 1.
+        # segmentLength = 50 i.e. 50 equally spaced points are generated.
         percent = np.linspace(0.0,1.0,int(self.segmentLength))
-        points = (np.outer(percent,pt1) + np.outer((1.0-percent),pt2))
+
+        # Outer product of matrices "percent" and "pt1" to generate,
+        # equally spaced points in 3-D.
+        outer1 = np.outer(percent,pt1) 
+        outer2 = np.outer((1.0-percent),pt2) # Similarly for outer2.
+
+        # Adding both the outer products to generate final matrix,
+        # containing points equally spaced between pt1 and pt2, 
+        # i.e. between new node and the closest node in tree.
+        points = (outer1 + outer2)
+
+        # Looping through the points and the obstacle to find collision.
         for ii in range(points.shape[0]):
             for jj in range(self.obstacles.shape[0]):
+                # If distance between the obstacle and the point is less,
+                # than clearance (i.e. 2*building_width) then there is a collision
+                # and return False for Validity of the point.
                 if np.linalg.norm(self.obstacles[jj,:]-points[ii,0:2]) < self.clearance:
                     return False
         return True
@@ -215,6 +232,7 @@ class planRRT():
         # desired down position is down position of end node
         self.pd = wpp_end.item(2)
         self.end = wpp_end
+        # segmentLength is the 'D' distance
         self.segmentLength = 3.0*min_radius
 
         # create Tree class of start node
