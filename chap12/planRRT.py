@@ -299,9 +299,11 @@ class planRRT():
         if self.node_iteration % 20 == 0:
             rand_N = self.end.item(0)
             rand_E = self.end.item(1)
+            rand_D = self.end.item(2)
         else:
             rand_N = np.random.uniform(-self.map_size/2.,self.map_size/2.)
             rand_E = np.random.uniform(-self.map_size/2.,self.map_size/2.)
+            rand_D = np.random.uniform(0, -100)
 
         # calculate closest point
         closest = np.inf*np.ones((2,1))
@@ -315,7 +317,7 @@ class planRRT():
         chi = np.arctan2(rand_E-self.tree[parent].NED[1],rand_N-self.tree[parent].NED[0])
         N = self.segmentLength*np.cos(chi)+self.tree[parent].NED[0]
         E = self.segmentLength*np.sin(chi)+self.tree[parent].NED[1]
-        D = self.pd
+        D = rand_D
 
         ps = np.array([self.tree[parent].NED]).T
         chis = self.tree[parent].chi
@@ -335,7 +337,7 @@ class planRRT():
 
                 N = self.end[0]
                 E = self.end[1]
-                D = self.end[2]
+                D = 0
                 goal = True
                 # calculate cost of line
                 cost = self.dubins_path.length
