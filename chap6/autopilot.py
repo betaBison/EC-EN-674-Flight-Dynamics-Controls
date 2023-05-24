@@ -67,7 +67,7 @@ class autopilot:
         # longitudinal autopilot
         h_c = cmd.altitude_command
         # altitude limits
-        h_c = self.saturate(h_c,30.0,200.0)
+        h_c = self.saturate(h_c,0.0,200.0) # set low_limit for the altitude autopilot, 0.0 for ground
         theta_c = self.altitude_from_pitch.update(h_c,state.h)
         delta_e = self.pitch_from_elevator.update(theta_c,state.theta,state.q)
         delta_t = self.airspeed_from_throttle.update(cmd.airspeed_command,state.Va)
